@@ -145,6 +145,13 @@ input[type=text]:focus,input[type=password]:focus{outline:none;border-color:var(
           <span class="shift-label am" id="editorLabel">☀️ Turno AM</span>
           <button onclick="lock()" style="margin-left:auto;font-size:12px;color:var(--text2);background:none;border:none;cursor:pointer;">🔒 Cerrar sesión</button>
         </div>
+        <div id="tokenBox" style="margin-bottom:12px;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);">
+          <label>GitHub Token <span style="font-weight:400;color:var(--text2)">(solo tú lo necesitas — se guarda en tu navegador)</span></label>
+          <div style="display:flex;gap:8px;">
+            <input type="password" id="ghTokenInput" placeholder="ghp_..." style="margin-bottom:0;flex:1;" oninput="saveToken(this.value)">
+            <span id="tokenStatus" style="font-size:12px;color:var(--text2);align-self:center;white-space:nowrap;"></span>
+          </div>
+        </div>
         <div class="section-title">Bundles del día — edita cada fila</div>
         <div id="bundleRows"></div>
         <button class="add-row-btn" onclick="addRow()">+ Agregar bundle</button>
@@ -165,7 +172,7 @@ const XDT_AM={XDTGRD:1,XDTHZL:2,XDTDEN:3,XDTCDR:4,XDTKC:5,XDTJMO:6,XDTPHX:7,XDTM
 const XDT_PM={XDTCDR:1,XDTGRD:1,XDTHZL:2,XDTKC:3,XDTJMO:4,XDTDEN:5,XDTPHX:5,XDTMV:7,XDTLA:7,XDTTRY:8,XDTOAK:8,XDTWA:9,XDTORG:10};
 const DATA_VERSION='6';
 const PASS='dispatch2024';
-const GH_TOKEN='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';
+const GH_TOKEN=localStorage.getItem('ghToken')||'';
 const GH_REPO='edgaraldairmaersk-tech/dispatcher-lookup';
 const GH_FILE='index.html';
 const DEFAULT_AM=[
@@ -314,11 +321,22 @@ function clearResult(){
   ['resultAM','resultPM','resultUnknown'].forEach(id=>document.getElementById(id).style.display='none');
   document.getElementById('assignBox').style.display='none';
 }
+function saveToken(val){
+  if(val){localStorage.setItem('ghToken',val);document.getElementById('tokenStatus').textContent='✓ Token guardado';}
+  else{localStorage.removeItem('ghToken');document.getElementById('tokenStatus').textContent='';}
+}
+
 function checkPassword(){
   if(document.getElementById('passwordInput').value===PASS){
     unlocked=true;
     document.getElementById('lockCard').style.display='none';
     document.getElementById('editorCard').style.display='block';
+    // Load saved token
+    const saved=localStorage.getItem('ghToken');
+    if(saved){
+      document.getElementById('ghTokenInput').value=saved;
+      document.getElementById('tokenStatus').textContent='✓ Token guardado';
+    }
     renderForm();
   }else{
     document.getElementById('lockError').style.display='block';
