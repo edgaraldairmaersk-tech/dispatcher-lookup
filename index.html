@@ -198,6 +198,21 @@ const DEFAULT_PM=[
   {b:10,area:"XDTORG 3971 | OR 1100 | 895/1239 | HI",dispatcher:"Dara Gomez",sts:false},
 ];
 let shift='AM',unlocked=false,amList=[],pmList=[],manualStores={};
+async function loadFromGitHub(){
+  try {
+    const res=await fetch('https://raw.githubusercontent.com/'+GH_REPO+'/main/data.json?t='+Date.now());
+    if(!res.ok)return;
+    const data=await res.json();
+    if(data.amList&&data.amList.length>0){
+      amList=data.amList;
+      pmList=data.pmList||pmList;
+      // Save to localStorage so offline works too
+      localStorage.setItem('amList',JSON.stringify(amList));
+      localStorage.setItem('pmList',JSON.stringify(pmList));
+    }
+  } catch(e){}
+}
+
 function loadData(){
   if(localStorage.getItem('dataVersion')!==DATA_VERSION){localStorage.removeItem('amList');localStorage.removeItem('pmList');localStorage.setItem('dataVersion',DATA_VERSION);}
   try{amList=JSON.parse(localStorage.getItem('amList')||'null')||JSON.parse(JSON.stringify(DEFAULT_AM));}catch(e){amList=JSON.parse(JSON.stringify(DEFAULT_AM));}
@@ -352,32 +367,22 @@ async function saveList(){
 }
 
 async function pushToGitHub(){
-  // 1. Get current file SHA
-  const headers={'Authorization':'token '+GH_TOKEN,'Content-Type':'application/json'};
-  const getRes=await fetch('https://api.github.com/repos/'+GH_REPO+'/contents/'+GH_FILE,{headers});
-  if(!getRes.ok)throw new Error('No se pudo obtener el archivo de GitHub');
-  const fileData=await getRes.json();
-  const sha=fileData.sha;
+  const headers={'Authorization':'token '+GH_TOKEN,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'};
+  const data={amList,pmList,updatedAt:new Date().toISOString()};
+  const encoded=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));
 
-  // 2. Build updated HTML with current lists embedded
-  const currentContent=fileData.content; // base64
-  let html=atob(currentContent.replace(/\n/g,''));
+  // Try to get existing file SHA (may not exist yet)
+  let sha=null;
+  try {
+    const getRes=await fetch('https://api.github.com/repos/'+GH_REPO+'/contents/data.json',{headers});
+    if(getRes.ok){const d=await getRes.json();sha=d.sha;}
+  } catch(e){}
 
-  // Update DEFAULT_AM in the file
-  const amJson=JSON.stringify(amList);
-  const pmJson=JSON.stringify(pmList);
-  html=html.replace(/const DEFAULT_AM=\[.*?\];/s,'const DEFAULT_AM='+amJson+';');
-  html=html.replace(/const DEFAULT_PM=\[.*?\];/s,'const DEFAULT_PM='+pmJson+';');
+  const body={message:'Update dispatcher list '+new Date().toLocaleString(),content:encoded};
+  if(sha)body.sha=sha;
 
-  // Bump DATA_VERSION to force everyone to reload
-  const currentVersion=parseInt(html.match(/DATA_VERSION='(\d+)'/)?.[1]||'5');
-  html=html.replace(/DATA_VERSION='\d+'/,'DATA_VERSION=\''+(currentVersion+1)+'\'');
-
-  // 3. Push updated file
-  const encoded=btoa(unescape(encodeURIComponent(html)));
-  const pushRes=await fetch('https://api.github.com/repos/'+GH_REPO+'/contents/'+GH_FILE,{
-    method:'PUT',headers,
-    body:JSON.stringify({message:'Update dispatcher list '+new Date().toISOString(),content:encoded,sha})
+  const pushRes=await fetch('https://api.github.com/repos/'+GH_REPO+'/contents/data.json',{
+    method:'PUT',headers,body:JSON.stringify(body)
   });
   if(!pushRes.ok){const err=await pushRes.json();throw new Error(err.message||'Error al subir');}
 }
@@ -413,6 +418,8 @@ function renderHandoff(){
 }
 
 document.getElementById('routeInput').addEventListener('keydown',e=>{if(e.key==='Enter')lookup();});
+// Load latest data from GitHub on page load
+loadFromGitHub();
 document.getElementById('passwordInput').addEventListener('keydown',e=>{if(e.key==='Enter')checkPassword();});
 loadData();
 </script>
