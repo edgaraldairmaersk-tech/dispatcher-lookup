@@ -110,20 +110,20 @@
     {
       "b": 1,
       "area": "XDTCDR 3984 + XDTGRD 3939 | 886 | 844/846/1312",
-      "dispatcher": "Ash Ketchum",
+      "dispatcher": "Erick Barcenas",
       "sts": false
     },
     {
       "b": 2,
       "area": "XDTHZL 3887 | 847 | 1286 | 863 | 1244",
-      "dispatcher": "Humberto Cardenas",
+      "dispatcher": "Luis Arreguin",
       "sts": false
     },
     {
       "b": 3,
       "area": "XDTKC 3994 | CO 1238/1284 | 1223 | 1232",
-      "dispatcher": "Dulce Gonzalez",
-      "sts": false
+      "dispatcher": "Mauricio Gonzales",
+      "sts": true
     },
     {
       "b": 4,
@@ -134,7 +134,7 @@
     {
       "b": 5,
       "area": "XDTDEN 3987 | XDT 3345 | PHX 883/1101 | 1262",
-      "dispatcher": "Hector Castillo",
+      "dispatcher": "Alexis Owen ",
       "sts": true
     },
     {
@@ -152,13 +152,13 @@
     {
       "b": 8,
       "area": "XDTTRY 3966 | XDTOAK 3974 | 1253 | 1357 | 884",
-      "dispatcher": "Aime Hernandez",
+      "dispatcher": "Dulce Gonzales",
       "sts": true
     },
     {
       "b": 9,
       "area": "XDTWA 3989 | WA 893/894 | 880 | AK",
-      "dispatcher": "Christian Petatan",
+      "dispatcher": "Irving Lira",
       "sts": true
     },
     {
@@ -168,5 +168,5 @@
       "sts": false
     }
   ],
-  "updatedAt": "2026-03-18T18:34:31.391Z"
+  "updatedAt": "2026-03-18T20:17:40.171Z"
 }
