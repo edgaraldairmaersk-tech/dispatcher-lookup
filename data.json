@@ -3,7 +3,7 @@
     {
       "b": 1,
       "area": "XDTGRD 3939 | 844/846/1312",
-      "dispatcher": "Rogelio Morales",
+      "dispatcher": "Nick Tavera",
       "sts": true,
       "handoff": "10:30 AM"
     },
@@ -17,7 +17,7 @@
     {
       "b": 3,
       "area": "XDTDEN 3987 | 1218 | 1223",
-      "dispatcher": "Maria Gordillo",
+      "dispatcher": "Mario Pacheco",
       "sts": false,
       "handoff": "11:45 AM"
     },
@@ -52,8 +52,8 @@
     {
       "b": 8,
       "area": "XDTMV 3363 | 1236 | AK",
-      "dispatcher": "Saul Mendez",
-      "sts": false,
+      "dispatcher": "Rogelio Morales",
+      "sts": true,
       "handoff": "1:00 PM"
     },
     {
@@ -67,14 +67,14 @@
       "b": 10,
       "area": "XDTTRY 3966 | CO 1238/1284",
       "dispatcher": "Bryan Martinez",
-      "sts": false,
+      "sts": true,
       "handoff": "1:00 PM"
     },
     {
       "b": 11,
       "area": "XDTORG 3971 | 1100 | HI",
-      "dispatcher": "Mario Pacheco",
-      "sts": false,
+      "dispatcher": "Jaylin Perez",
+      "sts": true,
       "handoff": "1:00 PM"
     },
     {
@@ -94,7 +94,7 @@
     {
       "b": 14,
       "area": "NFB | 1104/1267 | 880",
-      "dispatcher": "Angelica Amador",
+      "dispatcher": "Carlo Tolentino",
       "sts": false,
       "handoff": ""
     },
@@ -168,5 +168,5 @@
       "sts": false
     }
   ],
-  "updatedAt": "2026-03-18T16:26:06.334Z"
+  "updatedAt": "2026-03-18T16:28:11.933Z"
 }
