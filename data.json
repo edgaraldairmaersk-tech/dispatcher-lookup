@@ -128,13 +128,13 @@
     {
       "b": 4,
       "area": "XDTJMO 3995 | 888/1254 | 1295 | 1218 | UT-897",
-      "dispatcher": "Mauricio Gonzalez",
+      "dispatcher": "Alexis Owen",
       "sts": true
     },
     {
       "b": 5,
       "area": "XDTDEN 3987 | XDT 3345 | PHX 883/1101 | 1262",
-      "dispatcher": "Alexis Owen ",
+      "dispatcher": "Humberto Cardenas",
       "sts": true
     },
     {
@@ -168,5 +168,5 @@
       "sts": false
     }
   ],
-  "updatedAt": "2026-03-18T21:55:09.605Z"
+  "updatedAt": "2026-03-18T22:43:28.803Z"
 }
