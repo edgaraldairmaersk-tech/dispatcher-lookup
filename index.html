@@ -1,440 +1,487 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maersk | Lowe's Last Mile CX Assistant</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>Dispatcher Lookup</title>
 <style>
-  :root {
-    --bg: #0a0e1a; --surface: #111827; --surface2: #1a2236;
-    --border: #1e3a5f; --accent: #00aaff; --accent2: #0066cc;
-    --maersk: #42b0d5; --text: #e2e8f0; --text-muted: #8899bb;
-    --user-bg: #0d2340; --success: #10b981; --escalate: #f97316; --warn: #f59e0b;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'IBM Plex Sans',sans-serif; background:var(--bg); color:var(--text); height:100vh; display:flex; flex-direction:column; overflow:hidden; }
-  header { background:var(--surface); border-bottom:1px solid var(--border); padding:0 20px; height:60px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; position:relative; }
-  header::after { content:''; position:absolute; bottom:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--accent),transparent); opacity:0.4; }
-  .header-left { display:flex; align-items:center; gap:12px; }
-  .logo-maersk { font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:14px; color:var(--maersk); letter-spacing:0.08em; }
-  .logo-div { width:1px; height:20px; background:var(--border); }
-  .logo-lowes { font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:13px; color:#5b9bd5; }
-  .header-title { font-size:13px; color:var(--text-muted); }
-  .status-dot { width:8px; height:8px; background:var(--success); border-radius:50%; box-shadow:0 0 8px var(--success); animation:pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-  .status-text { font-size:11px; color:var(--success); font-family:'IBM Plex Mono',monospace; }
-  .chat-wrapper { flex:1; display:flex; flex-direction:column; overflow:hidden; max-width:900px; width:100%; margin:0 auto; padding:0 16px; }
-  #messages { flex:1; overflow-y:auto; padding:20px 0; display:flex; flex-direction:column; gap:12px; scroll-behavior:smooth; }
-  #messages::-webkit-scrollbar { width:4px; }
-  #messages::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
-  .msg { display:flex; gap:10px; animation:slideIn 0.25s ease; }
-  @keyframes slideIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-  .msg.user { flex-direction:row-reverse; }
-  .avatar { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; flex-shrink:0; font-family:'IBM Plex Mono',monospace; }
-  .avatar.bot { background:linear-gradient(135deg,var(--accent2),var(--accent)); color:white; }
-  .avatar.user { background:var(--surface2); color:var(--text-muted); border:1px solid var(--border); }
-  .bubble { max-width:78%; padding:12px 16px; border-radius:12px; font-size:13.5px; line-height:1.6; }
-  .msg.bot .bubble { background:var(--surface); border:1px solid var(--border); border-radius:4px 12px 12px 12px; }
-  .msg.user .bubble { background:var(--user-bg); border:1px solid var(--accent2); border-radius:12px 4px 12px 12px; }
-  .bubble.tier2, .bubble.tier3 { border-color:var(--escalate)!important; background:#1a1000!important; }
-  .bubble.tier1 { border-color:var(--warn)!important; background:#1a1500!important; }
-  .bubble.dispatcher { border-color:#7c3aed!important; background:#120d1a!important; }
-  .badge { display:inline-flex; align-items:center; gap:6px; font-size:10px; font-weight:600; padding:2px 8px; border-radius:4px; font-family:'IBM Plex Mono',monospace; letter-spacing:0.08em; margin-bottom:8px; text-transform:uppercase; }
-  .badge.red { background:var(--escalate); color:white; }
-  .badge.yellow { background:var(--warn); color:#000; }
-  .badge.purple { background:#7c3aed; color:white; }
-  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
-  .chip { padding:5px 12px; border:1px solid var(--border); border-radius:20px; font-size:12px; cursor:pointer; color:var(--text-muted); background:var(--surface2); transition:all 0.2s; }
-  .chip:hover { border-color:var(--accent); color:var(--accent); }
-  .thinking { display:flex; gap:4px; align-items:center; padding:12px 16px; background:var(--surface); border:1px solid var(--border); border-radius:4px 12px 12px 12px; width:fit-content; }
-  .dot { width:6px; height:6px; background:var(--accent); border-radius:50%; animation:bounce 1.2s infinite; }
-  .dot:nth-child(2){animation-delay:0.2s} .dot:nth-child(3){animation-delay:0.4s}
-  @keyframes bounce { 0%,100%{transform:translateY(0);opacity:0.4} 50%{transform:translateY(-4px);opacity:1} }
-  .input-area { padding:12px 0 16px; border-top:1px solid var(--border); flex-shrink:0; position:relative; }
-  .input-area::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--accent),transparent); opacity:0.25; }
-  .input-row { display:flex; gap:8px; align-items:flex-end; }
-  #userInput { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 14px; color:var(--text); font-family:'IBM Plex Sans',sans-serif; font-size:13.5px; resize:none; min-height:42px; max-height:120px; outline:none; transition:border-color 0.2s; line-height:1.5; }
-  #userInput::placeholder { color:var(--text-muted); }
-  #userInput:focus { border-color:var(--accent); }
-  #sendBtn { width:42px; height:42px; background:linear-gradient(135deg,var(--accent2),var(--accent)); border:none; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; flex-shrink:0; }
-  #sendBtn:hover { opacity:0.9; transform:scale(1.03); }
-  #sendBtn svg { width:18px; height:18px; color:white; }
-  .input-hint { font-size:11px; color:var(--text-muted); margin-top:6px; text-align:center; font-family:'IBM Plex Mono',monospace; }
-  .bubble strong { color:var(--accent); font-weight:600; }
-  .bubble ul { padding-left:16px; margin-top:6px; }
-  .bubble li { margin-bottom:3px; color:var(--text-muted); }
-  .bubble li strong { color:var(--text); }
-  .tag { display:inline-block; background:rgba(0,170,255,0.1); border:1px solid rgba(0,170,255,0.25); color:var(--accent); font-size:11px; padding:1px 6px; border-radius:4px; font-family:'IBM Plex Mono',monospace; }
-  .note-box { background:#0d1f0d; border:1px solid #1a4a1a; border-radius:8px; padding:10px 14px; margin-top:10px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#a0c8a0; line-height:1.6; }
-  .note-label { font-size:10px; color:var(--success); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px; font-weight:600; }
-  * { scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+:root{--green:#1D9E75;--green-dark:#0F6E56;--green-light:#E1F5EE;--green-border:#5DCAA5;--green-text:#085041;--green-sub:#0F6E56;--blue:#185FA5;--blue-light:#E6F1FB;--blue-border:#85B7EB;--blue-text:#042C53;--blue-sub:#185FA5;--amber-light:#FAEEDA;--amber-border:#EF9F27;--amber-text:#633806;--bg:#F5F5F0;--surface:#FFFFFF;--surface2:#F0EFEA;--border:rgba(0,0,0,0.1);--border2:rgba(0,0,0,0.18);--text:#1a1a18;--text2:#6b6b66;--radius:12px;--radius-sm:7px;}
+@media(prefers-color-scheme:dark){:root{--bg:#1a1a18;--surface:#252523;--surface2:#2e2e2b;--border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.18);--text:#f0efe8;--text2:#9a9a92;--green-light:#0a2e22;--green-border:#1D9E75;--green-text:#9FE1CB;--green-sub:#5DCAA5;--blue-light:#061e35;--blue-border:#378ADD;--blue-text:#B5D4F4;--blue-sub:#378ADD;--amber-light:#2a1f0a;--amber-border:#BA7517;--amber-text:#FAC775;}}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:1rem;}
+.container{max-width:560px;margin:0 auto;}
+header{padding:1.25rem 0 1rem;display:flex;align-items:center;gap:12px;}
+.logo{width:40px;height:40px;background:var(--green);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+h1{font-size:22px;font-weight:700;}
+.tagline{font-size:13px;color:var(--text2);margin-top:2px;}
+.shift-wrap{display:flex;margin-bottom:1rem;border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden;}
+.shift-btn{flex:1;padding:10px;font-size:14px;font-weight:600;cursor:pointer;border:none;background:var(--surface2);color:var(--text2);transition:all .15s;}
+.shift-btn.am{background:var(--green);color:white;}
+.shift-btn.pm{background:var(--blue);color:white;}
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:1rem;}
+.tab{flex:1;padding:10px 4px;font-size:13px;cursor:pointer;background:transparent;color:var(--text2);border:none;border-bottom:2px solid transparent;font-weight:500;transition:all .15s;text-align:center;}
+.tab.active-am{color:var(--green);border-bottom-color:var(--green);}
+.tab.active-pm{color:var(--blue);border-bottom-color:var(--blue);}
+.panel{display:none;}
+.panel.active{display:block;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem;}
+label{font-size:12px;color:var(--text2);display:block;margin-bottom:5px;font-weight:600;letter-spacing:.02em;}
+input[type=text],input[type=password]{width:100%;padding:11px 12px;font-size:15px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);margin-bottom:8px;transition:border-color .15s;-webkit-appearance:none;}
+input[type=text]:focus,input[type=password]:focus{outline:none;border-color:var(--green);}
+.btn{width:100%;padding:12px;font-size:15px;font-weight:600;cursor:pointer;border-radius:var(--radius-sm);border:none;background:var(--green);color:white;transition:background .15s;}
+.btn:hover{background:var(--green-dark);}
+.btn.blue{background:var(--blue);}
+.btn.blue:hover{background:#0C447C;}
+.hint{font-size:12px;color:var(--text2);margin-bottom:10px;margin-top:-4px;}
+.result-am{background:var(--green-light);border:1px solid var(--green-border);border-radius:var(--radius);padding:1.25rem;margin-top:.75rem;display:none;animation:fadeIn .2s ease;}
+.result-pm{background:var(--blue-light);border:1px solid var(--blue-border);border-radius:var(--radius);padding:1.25rem;margin-top:.75rem;display:none;animation:fadeIn .2s ease;}
+.result-unknown{background:var(--amber-light);border:1px solid var(--amber-border);border-radius:var(--radius);padding:1rem;margin-top:.75rem;display:none;animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.rname-am{font-size:22px;font-weight:700;color:var(--green-text);}
+.rname-pm{font-size:22px;font-weight:700;color:var(--blue-text);}
+.rmeta{font-size:13px;margin-top:3px;}
+.rmeta-am{color:var(--green-sub);}
+.rmeta-pm{color:var(--blue-sub);}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+.chip{font-size:12px;font-weight:600;padding:3px 10px;border-radius:99px;}
+.chip-am{background:#9FE1CB;color:#085041;}
+.chip-pm{background:#B5D4F4;color:#0C447C;}
+.chip-sts{background:#FF6B6B;color:#fff;}
+@media(prefers-color-scheme:dark){.chip-pm{background:#0C447C;color:#B5D4F4;}.chip-sts{background:#A32D2D;}}
+.wtext{font-size:14px;color:var(--amber-text);line-height:1.5;}
+.wtext strong{font-weight:600;}
+#assignBox{margin-top:10px;display:none;}
+#assignBundle{width:100%;padding:9px 10px;font-size:14px;border:1px solid var(--amber-border);border-radius:var(--radius-sm);background:var(--amber-light);color:var(--amber-text);margin-bottom:8px;}
+.btn-amber{background:#BA7517;}
+.btn-amber:hover{background:#854F0B;}
+.section-title{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
+.lock-wrap{text-align:center;padding:1.5rem 1rem;}
+.lock-icon{font-size:36px;margin-bottom:.75rem;}
+.lock-wrap p{font-size:13px;color:var(--text2);margin-bottom:1rem;}
+.lock-error{font-size:12px;color:#A32D2D;margin-top:6px;display:none;}
+.back-link{font-size:12px;color:var(--text2);text-decoration:underline;background:none;border:none;cursor:pointer;margin-top:10px;}
+.shift-label{display:inline-block;font-size:11px;font-weight:700;padding:2px 10px;border-radius:99px;margin-bottom:10px;}
+.shift-label.am{background:var(--green-light);color:var(--green-text);}
+.shift-label.pm{background:var(--blue-light);color:var(--blue-text);}
+.bundle-row{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px;}
+.bundle-row .row-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.bnum{font-size:13px;font-weight:700;color:var(--text2);min-width:60px;}
+.sts-check{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);margin-left:auto;cursor:pointer;}
+.sts-check input{width:14px;height:14px;margin:0;cursor:pointer;}
+.row-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.row-fields input{margin-bottom:0;font-size:13px;padding:8px 10px;}
+.add-row-btn{width:100%;padding:9px;font-size:13px;font-weight:600;cursor:pointer;border-radius:var(--radius-sm);border:1px dashed var(--border2);background:transparent;color:var(--text2);transition:all .15s;margin-bottom:10px;}
+.add-row-btn:hover{background:var(--surface2);border-color:var(--green);color:var(--green);}
+.del-row{font-size:11px;padding:2px 8px;border-radius:4px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;}
+.del-row:hover{color:#A32D2D;border-color:#F09595;}
+.save-notice{font-size:12px;color:var(--green);font-weight:600;display:none;text-align:center;margin-top:6px;}
+.handoff-badge{display:inline-flex;align-items:center;gap:5px;background:#FFF3CD;border:1px solid #FFCB47;color:#7B4F00;font-size:12px;font-weight:600;padding:4px 10px;border-radius:99px;margin-top:8px;}
+@media(prefers-color-scheme:dark){.handoff-badge{background:#2a1f0a;border-color:#BA7517;color:#FAC775;}}
+.handoff-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem;}
+.handoff-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);}
+.handoff-row:last-child{border-bottom:none;}
+.handoff-bundle{font-size:13px;color:var(--text2);min-width:30px;font-weight:600;}
+.handoff-area{font-size:12px;color:var(--text2);flex:1;padding:0 10px;}
+.handoff-time{font-size:13px;font-weight:700;color:#7B4F00;background:#FFF3CD;padding:3px 10px;border-radius:99px;white-space:nowrap;}
+@media(prefers-color-scheme:dark){.handoff-time{background:#2a1f0a;color:#FAC775;}}
+.pm-takes{font-size:11px;color:var(--blue-sub);margin-left:8px;white-space:nowrap;}
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#1a1a18;color:white;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:500;z-index:999;display:none;}
+.lfb-warning{background:#FFF3CD;border:1px solid #FFCB47;border-radius:var(--radius-sm);padding:10px 12px;margin-top:10px;display:none;font-size:12px;color:#7B4F00;line-height:1.5;}
+.lfb-warning strong{font-weight:700;display:block;margin-bottom:2px;}
+@media(prefers-color-scheme:dark){.lfb-warning{background:#2a1f0a;border-color:#BA7517;color:#FAC775;}}
 </style>
 </head>
 <body>
-<header>
-  <div class="header-left">
-    <span class="logo-maersk">MAERSK</span>
-    <div class="logo-div"></div>
-    <span class="logo-lowes">LOWE'S LAST MILE</span>
-    <span class="header-title">CX Assistant v2</span>
+<div class="container">
+  <header>
+    <div class="logo">📦</div>
+    <div><h1>Dispatcher Lookup</h1><div class="tagline">Busca al dispatcher de cualquier orden EDP</div></div>
+  </header>
+  <div class="shift-wrap">
+    <button class="shift-btn am" id="btnAM" onclick="setShift('AM')">☀️ AM</button>
+    <button class="shift-btn" id="btnPM" onclick="setShift('PM')">🌙 PM</button>
   </div>
-  <div style="display:flex;align-items:center;gap:8px">
-    <div class="status-dot"></div>
-    <span class="status-text">ONLINE</span>
+  <div class="tabs">
+    <button class="tab active-am" id="tabSearch" onclick="switchTab('search')">Buscar</button>
+    <button class="tab" id="tabHandoff" onclick="switchTab('handoff')">Handoff</button>
+    <button class="tab" id="tabUpdate" onclick="switchTab('update')">Actualizar lista</button>
   </div>
-</header>
-
-<div class="chat-wrapper">
-  <div id="messages"></div>
-  <div class="input-area">
-    <div class="input-row">
-      <textarea id="userInput" placeholder="Describe the situation — customer call, driver issue, installation problem..." rows="1"></textarea>
-      <button id="sendBtn" onclick="sendMessage()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-        </svg>
-      </button>
+  <div class="panel active" id="tab-search">
+    <div class="card">
+      <label>Route code o número de tienda</label>
+      <input type="text" id="routeInput" placeholder="ej. 2533BOX01 / XDTJMO06 / 2533" oninput="clearResult()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <p class="hint">Acepta route completo, store number o código XDT</p>
+      <button class="btn" id="searchBtn" onclick="lookup()">Buscar dispatcher</button>
+      <div class="result-am" id="resultAM"><div class="rname-am" id="rNameAM"></div><div class="rmeta rmeta-am" id="rMetaAM"></div><div class="chips" id="rChipsAM"></div></div>
+      <div class="result-pm" id="resultPM"><div class="rname-pm" id="rNamePM"></div><div class="rmeta rmeta-pm" id="rMetaPM"></div><div class="chips" id="rChipsPM"></div></div>
+      <div class="lfb-warning" id="lfbWarning">
+        <strong>⚠️ Flatbed routes — include LFB in your search</strong>
+        This store has flatbed routes assigned to a different dispatcher. If you are looking for a flatbed, search using the full route code including <strong>LFB</strong> (e.g. 1926LFB1) to get the correct dispatcher.
+      </div>
+      <div class="result-unknown" id="resultUnknown">
+        <div class="wtext" id="warnMsg"></div>
+        <div id="assignBox">
+          <div class="section-title" style="margin-top:10px;">Asignar al bundle correcto</div>
+          <select id="assignBundle"></select>
+          <button class="btn btn-amber" onclick="assignNewStore()">Guardar tienda</button>
+        </div>
+      </div>
     </div>
-    <div class="input-hint">Enter to send · Shift+Enter for new line</div>
+  </div>
+  <div class="panel" id="tab-handoff">
+    <div class="handoff-section">
+      <div class="section-title">AM → PM Handoff Schedule</div>
+      <div id="handoffList"></div>
+    </div>
+  </div>
+  <div class="panel" id="tab-update">
+    <div class="card" id="lockCard">
+      <div class="lock-wrap">
+        <div class="lock-icon">🔒</div>
+        <p>Esta sección es solo para el designado de actualizar la lista diaria.</p>
+        <label>Contraseña</label>
+        <input type="password" id="passwordInput" placeholder="Contraseña">
+        <button class="btn" onclick="checkPassword()">Entrar</button>
+        <div class="lock-error" id="lockError">Contraseña incorrecta</div>
+        <br><button class="back-link" onclick="switchTab('search')">← Volver a Buscar</button>
+      </div>
+    </div>
+    <div id="editorCard" style="display:none">
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <span class="shift-label am" id="editorLabel">☀️ Turno AM</span>
+          <button onclick="lock()" style="margin-left:auto;font-size:12px;color:var(--text2);background:none;border:none;cursor:pointer;">🔒 Cerrar sesión</button>
+        </div>
+        <div id="tokenBox" style="margin-bottom:12px;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);">
+          <label>GitHub Token <span style="font-weight:400;color:var(--text2)">(solo tú lo necesitas — se guarda en tu navegador)</span></label>
+          <div style="display:flex;gap:8px;">
+            <input type="password" id="ghTokenInput" placeholder="ghp_..." style="margin-bottom:0;flex:1;" oninput="saveToken(this.value)">
+            <span id="tokenStatus" style="font-size:12px;color:var(--text2);align-self:center;white-space:nowrap;"></span>
+          </div>
+        </div>
+        <div class="section-title">Bundles del día — edita cada fila</div>
+        <div id="bundleRows"></div>
+        <button class="add-row-btn" onclick="addRow()">+ Agregar bundle</button>
+        <button class="btn" onclick="saveList()">Guardar lista</button>
+        <div class="save-notice" id="saveNotice">✓ Lista guardada</div>
+      </div>
+    </div>
   </div>
 </div>
-
+<div class="toast" id="toast"></div>
 <script>
-const SYS = `You are the CX Virtual Assistant for Maersk Last Mile — Lowe's Home Delivery operations.
 
-ROLE: Support live CX agents and dispatchers during active calls with customers AND drivers. Provide fast, accurate protocol guidance based exclusively on Maersk/Lowe's Last Mile CX training. You do NOT replace agent judgment — you equip agents with the right protocol so they can make informed decisions quickly.
+const STORE_MAP={4:13,8:5,10:13,15:9,18:12,26:13,35:13,46:1,53:1,56:15,57:2,61:13,66:5,69:1,71:1,75:1,92:2,102:10,104:2,107:2,117:2,119:11,126:1,140:13,149:13,152:12,172:12,178:9,199:1,200:1,208:7,235:6,236:6,245:2,246:10,248:11,249:12,250:15,252:13,258:2,278:3,285:13,289:8,305:5,311:10,316:8,317:6,318:10,319:12,321:15,330:1,340:10,342:9,422:3,432:6,462:6,493:6,503:11,521:5,533:4,552:4,581:4,591:6,597:6,614:5,643:6,674:7,688:12,694:3,714:7,721:5,731:6,733:3,753:6,756:3,758:15,759:7,764:6,765:1,773:15,774:8,775:7,777:5,785:15,790:5,791:9,792:7,795:5,805:5,1001:7,1013:13,1019:14,1024:15,1026:7,1030:8,1032:7,1041:8,1042:7,1043:14,1048:8,1050:15,1055:6,1057:6,1067:5,1077:5,1078:5,1080:9,1081:13,1082:13,1083:5,1084:5,1086:14,1087:15,1089:13,1090:7,1096:3,1098:5,1099:10,1105:1,1108:11,1110:1,1114:11,1117:7,1118:9,1121:1,1132:14,1133:9,1137:3,1143:14,1144:9,1146:3,1147:5,1148:15,1150:14,1152:3,1157:7,1158:3,1159:4,1162:9,1167:13,1170:8,1180:5,1184:4,1201:15,1204:7,1207:15,1209:6,1429:8,1501:9,1503:6,1510:9,1514:1,1517:1,1520:4,1534:13,1539:10,1540:15,1541:5,1543:3,1545:14,1547:5,1551:1,1552:14,1553:7,1554:10,1555:15,1556:7,1558:11,1559:5,1561:11,1562:8,1565:5,1573:13,1574:7,1576:7,1588:13,1591:15,1600:11,1607:7,1609:1,1611:5,1613:9,1615:1,1616:13,1623:5,1627:6,1628:6,1630:10,1631:13,1632:11,1633:8,1634:10,1636:3,1638:7,1648:6,1650:6,1661:13,1672:5,1679:2,1680:6,1682:12,1688:2,1690:11,1693:11,1695:4,1700:8,1706:14,1707:7,1708:5,1712:2,1728:7,1730:10,1734:9,1741:11,1742:13,1743:8,1745:5,1746:6,1752:6,1753:15,1754:7,1755:10,1756:14,1761:3,1766:6,1773:1,1775:6,1785:12,1791:7,1795:6,1806:6,1809:6,1812:10,1818:6,1824:11,1826:3,1830:5,1833:6,1850:7,1852:9,1860:1,1871:14,1872:8,1873:9,1874:10,1887:11,1895:14,1896:6,1901:14,1903:10,1904:12,1905:10,1906:12,1926:15,1933:15,1941:9,1955:6,1956:1,1966:6,1971:9,1972:9,1985:8,1987:7,1989:10,2211:14,2215:5,2226:3,2227:14,2230:3,2231:2,2236:3,2268:15,2270:8,2272:7,2273:14,2274:10,2275:9,2277:12,2278:5,2279:14,2293:9,2294:7,2295:7,2296:9,2300:6,2302:6,2303:6,2311:6,2313:6,2314:3,2315:6,2318:1,2330:8,2331:13,2333:6,2334:14,2335:14,2336:11,2340:5,2341:15,2344:12,2346:13,2419:10,2420:13,2421:7,2423:10,2424:5,2432:10,2435:4,2459:5,2465:6,2466:4,2471:6,2473:5,2479:10,2481:13,2491:3,2499:15,2501:3,2502:9,2503:4,2504:5,2508:14,2510:3,2512:8,2518:6,2527:7,2528:7,2532:1,2533:6,2539:3,2547:9,2550:13,2556:3,2557:7,2561:13,2565:5,2568:10,2573:12,2576:3,2578:10,2579:11,2582:7,2583:7,2585:1,2587:12,2588:5,2593:1,2597:12,2598:6,2600:5,2604:14,2605:15,2606:9,2607:10,2608:12,2611:4,2619:11,2626:5,2627:6,2628:6,2647:3,2648:4,2660:5,2661:15,2662:9,2663:7,2683:7,2697:10,2712:5,2714:15,2729:6,2730:5,2733:13,2734:13,2736:6,2738:13,2739:4,2742:10,2746:13,2755:15,2761:6,2767:5,2769:5,2780:10,2781:13,2783:8,2790:14,2792:12,2793:12,2805:14,2806:10,2808:7,2820:7,2833:7,2834:9,2845:9,2849:3,2856:7,2858:9,2865:11,2879:3,2895:11,2928:3,2940:11,2942:1,2943:5,2954:11,2955:8,2956:12,2991:6,3000:7,3034:15,3045:12,3048:3,3057:11,3068:7,3088:5,3095:14,3151:8,3164:14,3170:9,3206:10,3214:13,3240:12,3279:11,3331:6,3345:7,3352:5,3363:8,3379:5,3427:9,3444:10,3566:8,3568:7,3641:6,3877:1,3887:2,3939:1,3956:9,3966:10,3971:11,3974:12,3984:4,3987:3,3989:13,3994:5,3995:6,4509:13,4522:9,4525:14,4530:6,4545:7,4546:8};
+const PM_STORE_MAP={4:9,8:4,10:9,15:9,18:10,26:9,35:9,46:1,53:1,56:6,57:2,61:9,66:4,69:1,71:1,75:1,92:2,102:3,104:2,107:2,117:2,119:10,126:1,140:9,149:9,152:10,172:10,178:9,199:1,200:1,208:5,235:2,236:2,245:2,246:3,248:10,249:10,250:6,252:9,258:2,278:4,285:9,289:9,305:4,311:3,316:6,317:2,318:3,319:10,321:8,330:1,340:3,342:9,422:4,432:2,462:2,493:2,503:10,521:4,533:3,552:3,581:3,591:2,597:2,614:4,643:2,674:5,688:10,694:4,714:5,721:4,731:2,733:4,753:1,756:3,758:6,759:5,764:2,765:1,773:6,774:6,775:5,777:8,785:6,790:8,791:7,792:5,795:8,805:8,1001:5,1013:8,1019:6,1024:8,1026:5,1030:6,1032:5,1041:6,1042:5,1043:6,1048:6,1050:6,1055:2,1057:2,1067:4,1077:4,1078:4,1080:9,1081:9,1082:8,1083:4,1084:4,1086:6,1087:8,1089:9,1090:5,1096:4,1098:4,1099:3,1105:1,1108:10,1110:1,1114:10,1117:5,1118:9,1121:1,1132:6,1133:9,1137:3,1143:6,1144:7,1146:3,1147:4,1148:8,1150:6,1152:3,1157:5,1158:3,1159:3,1162:7,1167:9,1170:6,1180:4,1184:3,1201:8,1204:5,1207:8,1209:2,1429:7,1501:9,1503:2,1510:7,1514:1,1517:1,1520:3,1534:9,1539:3,1540:8,1541:8,1543:3,1545:6,1547:4,1551:1,1552:6,1553:5,1554:3,1555:6,1556:5,1558:10,1559:4,1561:10,1562:6,1565:4,1573:9,1574:5,1576:5,1588:8,1591:6,1600:10,1607:5,1609:1,1611:8,1613:9,1615:1,1616:8,1623:4,1627:2,1628:2,1630:3,1631:9,1632:10,1633:9,1634:3,1636:3,1638:5,1648:2,1650:4,1661:8,1672:8,1679:2,1680:2,1682:10,1688:2,1690:10,1693:10,1695:3,1700:6,1706:6,1707:5,1708:8,1712:2,1728:5,1730:3,1734:7,1741:10,1742:8,1743:6,1745:4,1746:2,1752:2,1753:6,1754:5,1755:3,1756:6,1761:3,1766:2,1773:1,1775:2,1785:10,1791:5,1795:1,1806:2,1809:2,1812:3,1818:2,1824:10,1826:4,1830:4,1833:4,1850:5,1852:7,1860:1,1871:6,1872:6,1873:7,1874:3,1887:10,1895:6,1896:4,1901:6,1903:3,1904:10,1905:3,1906:10,1926:8,1933:8,1941:7,1955:4,1956:1,1966:2,1971:7,1972:7,1985:9,1987:5,1989:3,2211:6,2215:8,2226:4,2227:6,2230:4,2231:2,2236:4,2268:6,2270:6,2272:5,2273:6,2274:3,2275:9,2277:10,2278:8,2279:6,2293:9,2294:5,2295:5,2296:9,2300:2,2302:2,2303:2,2311:2,2313:4,2314:4,2315:4,2318:1,2330:6,2331:8,2333:4,2334:6,2335:6,2336:10,2340:4,2341:8,2344:10,2346:9,2419:3,2420:9,2421:5,2423:3,2424:8,2432:3,2435:3,2459:4,2465:4,2466:3,2471:2,2473:8,2479:3,2481:8,2491:4,2499:8,2501:3,2502:7,2503:3,2504:4,2508:6,2510:3,2512:9,2518:4,2527:5,2528:5,2532:1,2533:4,2539:3,2547:7,2550:8,2556:3,2557:5,2561:9,2565:4,2568:3,2573:10,2576:4,2578:3,2579:10,2582:5,2583:5,2585:1,2587:10,2588:4,2593:1,2597:10,2598:2,2600:4,2604:6,2605:6,2606:9,2607:3,2608:10,2611:3,2619:10,2626:4,2627:4,2628:4,2647:4,2648:3,2660:8,2661:8,2662:9,2663:5,2683:5,2697:3,2712:8,2714:6,2729:2,2730:8,2733:9,2734:9,2736:4,2738:9,2739:3,2742:3,2746:9,2755:8,2761:2,2767:4,2769:4,2780:3,2781:9,2783:6,2790:6,2792:10,2793:10,2805:6,2806:3,2808:5,2820:5,2833:5,2834:9,2845:9,2849:4,2856:5,2858:9,2865:10,2879:3,2895:10,2928:3,2940:10,2942:1,2943:4,2954:10,2955:9,2956:10,2991:1,3000:5,3034:8,3045:10,3048:3,3057:10,3068:5,3088:4,3095:6,3151:6,3164:6,3170:7,3206:3,3214:8,3240:10,3279:10,3331:2,3345:7,3352:8,3363:7,3379:4,3427:9,3444:3,3566:6,3568:5,3641:1,3877:1,3887:2,3939:1,3956:7,3966:10,3971:11,3974:12,3984:1,3987:5,3989:13,3994:5,3995:6,4509:9,4522:9,4525:7,4530:4,4545:5,4546:6};
 
-CRITICAL OUTPUT FORMAT — respond ONLY with raw valid JSON, no extra text, no code blocks:
-{
-  "escalate": true|false,
-  "notify_dispatcher": true|false,
-  "tier": null|1|2|3,
-  "badge": null|"string",
-  "reason": null|"string",
-  "response": "markdown string",
-  "note_template": null|"string"
+const NFB_STORES=new Set([321, 790, 795, 1019, 1086, 1087, 1143, 1148, 1150, 1201, 1207, 1540, 1541, 1545, 1611, 1672, 1706, 1756, 1895, 1901, 1926, 2211, 2215, 2227, 2279, 2334, 2335, 2424, 2473, 2499, 2508, 2712, 2730, 2755, 2790, 2805, 3034, 3095, 3352]);
+const SFB_STORES=new Set([56, 208, 250, 758, 759, 773, 775, 785, 791, 1001, 1013, 1026, 1030, 1041, 1048, 1050, 1082, 1144, 1162, 1429, 1510, 1555, 1556, 1562, 1574, 1576, 1588, 1591, 1661, 1734, 1742, 1743, 1852, 1872, 1873, 1941, 1971, 2268, 2330, 2331, 2481, 2502, 2528, 2547, 2550, 2583, 2605, 2714, 2783, 2856, 3151, 3170, 3214]);
+const LV_STORES=new Set([784,1033,1537,1620,1639,1703,1719,1836,1863,2202,2271,2477,2562,2721,2844]);
+const XDT_AM={XDTGRD:1,XDTHZL:2,XDTDEN:3,XDTCDR:4,XDTKC:5,XDTJMO:6,XDTPHX:7,XDTMV:8,XDTLA:9,XDTTRY:10,XDTORG:11,XDTOAK:12,XDTWA:13,XDTLV:16};
+const XDT_PM={XDTCDR:1,XDTGRD:1,XDTHZL:2,XDTKC:3,XDTJMO:4,XDTDEN:5,XDTPHX:5,XDTMV:7,XDTLA:7,XDTTRY:8,XDTOAK:8,XDTWA:9,XDTORG:10};
+const DATA_VERSION='6';
+const PASS='dispatch2024';
+// GH_TOKEN loaded dynamically in pushToGitHub
+const GH_REPO='edgaraldairmaersk-tech/dispatcher-lookup';
+const GH_FILE='index.html';
+const DEFAULT_AM=[
+  {b:1,area:"XDTGRD 3939 | 844/846/1312",dispatcher:"Rogelio Morales",sts:true,handoff:"10:30 AM"},
+  {b:2,area:"XDTHZL 3887 | 847 | 1286",dispatcher:"Moises Estrada",sts:true,handoff:"11:30 AM"},
+  {b:3,area:"XDTDEN 3987 | 1218 | 1223",dispatcher:"Maria Gordillo",sts:false,handoff:"11:45 AM"},
+  {b:4,area:"XDTCDR 3984 | 1232 | 1295",dispatcher:"Ivan Duran",sts:false,handoff:"12:00 PM"},
+  {b:5,area:"XDTKC 3994 | 888/1254 | 1357",dispatcher:"Carlos Colin",sts:true,handoff:"12:00 PM"},
+  {b:6,area:"XDTJMO 3995 | 863 | 886 | 1244",dispatcher:"David Vega",sts:false,handoff:"12:00 PM"},
+  {b:7,area:"XDTPHX 3345 | PHX 883/1101 | 1262",dispatcher:"Estefany Garcia",sts:true,handoff:"1:00 PM"},
+  {b:8,area:"XDTMV 3363 | 1236 | AK",dispatcher:"Saul Mendez",sts:false,handoff:"1:00 PM"},
+  {b:9,area:"XDTLA 3956 | UT-897",dispatcher:"Mario Garcia",sts:true,handoff:"1:00 PM"},
+  {b:10,area:"XDTTRY 3966 | CO 1238/1284",dispatcher:"Bryan Martinez",sts:false,handoff:"1:00 PM"},
+  {b:11,area:"XDTORG 3971 | 1100 | HI",dispatcher:"Mario Pacheco",sts:false,handoff:"1:00 PM"},
+  {b:12,area:"XDTOAK 3974 | 895/1239",dispatcher:"Pablo Sosa",sts:true,handoff:"1:00 PM"},
+  {b:13,area:"XDTWA 3989 | WA 893/894 | 1253",dispatcher:"Roberto Uriostegui",sts:true,handoff:"1:00 PM"},
+  {b:14,area:"NFB | 1104/1267 | 880",dispatcher:"Angelica Amador",sts:false,handoff:""},
+  {b:15,area:"SFB | 882 | 884",dispatcher:"Luis Hernandez",sts:false,handoff:""},
+];
+const DEFAULT_PM=[
+  {b:1,area:"XDTCDR 3984 + XDTGRD 3939 | 886 | 844/846/1312",dispatcher:"Luis Arreguin",sts:false},
+  {b:2,area:"XDTHZL 3887 | 847 | 1286 | 863 | 1244",dispatcher:"Humberto Cardenas",sts:false},
+  {b:3,area:"XDTKC 3994 | CO 1238/1284 | 1223 | 1232",dispatcher:"Dulce Gonzalez",sts:false},
+  {b:4,area:"XDTJMO 3995 | 888/1254 | 1295 | 1218 | UT-897",dispatcher:"Mauricio Gonzalez",sts:true},
+  {b:5,area:"XDTDEN 3987 | XDT 3345 | PHX 883/1101 | 1262",dispatcher:"Hector Castillo",sts:true},
+  {b:6,area:"SFB | NFB | 1236",dispatcher:"Osvaldo Salas",sts:false},
+  {b:7,area:"XDTMV 3363 | XDTLA 3956 | 882 | 1104/1267",dispatcher:"Alan Becerra",sts:false},
+  {b:8,area:"XDTTRY 3966 | XDTOAK 3974 | 1253 | 1357 | 884",dispatcher:"Aime Hernandez",sts:true},
+  {b:9,area:"XDTWA 3989 | WA 893/894 | 880 | AK",dispatcher:"Christian Petatan",sts:true},
+  {b:10,area:"XDTORG 3971 | OR 1100 | 895/1239 | HI",dispatcher:"Dara Gomez",sts:false},
+];
+let shift='AM',unlocked=false,amList=[],pmList=[],manualStores={};
+async function loadFromGitHub(){
+  try {
+    const res=await fetch('https://raw.githubusercontent.com/'+GH_REPO+'/main/data.json?t='+Date.now());
+    if(!res.ok)return;
+    const data=await res.json();
+    if(!data.amList||data.amList.length===0)return;
+    // Only overwrite if GitHub data is newer than local
+    const ghTime=new Date(data.updatedAt||0).getTime();
+    const localTime=parseInt(localStorage.getItem('dataUpdatedAt')||'0');
+    if(ghTime>localTime){
+      amList=data.amList;
+      pmList=data.pmList||pmList;
+      localStorage.setItem('amList',JSON.stringify(amList));
+      localStorage.setItem('pmList',JSON.stringify(pmList));
+      localStorage.setItem('dataUpdatedAt',String(ghTime));
+    }
+  } catch(e){}
 }
 
-Fields:
-- escalate: true if CX Leader or Area Manager must be looped in NOW
-- notify_dispatcher: true if dispatcher needs to be informed (can be true even if escalate is false)
-- tier: 1=minor (dispatcher/hauler), 2=moderate (CX Leader), 3=critical (CX Leader URGENT). null=routine
-- badge: short label shown to agent. null if routine. Examples: "ESCALATE – CX LEADER", "NOTIFY DISPATCHER", "SUPERVISOR REQUIRED"
-- reason: brief reason for badge. null if routine
-- response: your guidance using **bold** for key info and bullet lists. Concise — agent is on a live call.
-- note_template: EDP note agent can adapt. Format: "VTV/LVM w/ [Driver/Cust], [situation]. [Action taken]. [Outcome/next step]. [Initials]"
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-KNOWLEDGE BASE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-CALL PROTOCOLS
-
-Ghost Call: No response within 5 sec → greet 3 times, 5 sec apart, max 30-35 sec total. Close: "It seems there is no response on the line. I will now disconnect the call. Please feel free to call us back if you need assistance. Thank you." Do NOT callback. Disposition: Ghost Call.
-
-Dropped Call: Disconnects AFTER interaction began → callback within 1-2 min. If answers: "It seems our call was disconnected. I apologize for that. Let me continue assisting you." If no answer: leave voicemail. Document callback attempt + outcome. Disposition: Dropped Call (NOT Ghost Call).
-
-Call Back – No Response: New disposition. Use when you call back from any queue and get no live answer (VM or no answer). If you DO speak with someone, use outcome-based disposition instead.
-
-Order Lookup: FIRST action on every call = search by the phone number the customer is calling FROM. Do this BEFORE asking for order # or placing on hold. If found: confirm account + order, ask clarifying questions. If not found: then ask for phone # or order #. Goal: locate within first 30 seconds.
-
-Dispositions: Always select correct disposition within 45 sec of call end. Default "Booking" (ACW) inflates reports — must be brought to zero. Never leave without selecting.
-
-Supervisor Transfer — ZERO TOLERANCE: Customer can request supervisor at ANY time, no reason needed. NEVER refuse, delay, debate, or ask "Why do you want to speak to them?" Acknowledge and transfer IMMEDIATELY. While waiting: "While I get my supervisor on the line, would you mind sharing more details so I can explain your situation to them?" Refusing or delaying = QA penalty + corrective action.
-
-Follow-Up Calls — MANDATORY: Every time a driver calls about a delivery issue, CX MUST call the customer — even if driver already told them. Required for: cannot install for any reason, drop-off only instead of install, special requirements needed (smaller truck, 4-man team), installation issues (copper/plastic line, bad valves, water/gas line issues, leaks, stacking kit). No exceptions.
-
-WHAT LOWE'S HANDLES (redirect customer):
-Reschedules/new delivery dates, change of address/order mods, cancellations/partial orders, weather delays, orders after 4pm cutoff, financial transactions/refunds, COI/building requirements (customer contacts Lowe's), claims initiation (must get claim # from Lowe's first)
-
-WHAT CX/MAERSK HANDLES:
-Confirm delivery today (NARROWED+), confirm future delivery, explain reschedule process, courtesy haul away (team on-site or en route), Save the Sale, driver support, follow-up calls, COI guidance (locate order + provide store contact + note order)
-
-ORDER STATUSES:
-SCHEDULED: created, not routed | NARROWED: routed, not picked up — can confirm timeframe | LOADED: team loading at store | IN TRANSIT: en route | OUT FOR DELIVERY: first stop marked in transit | ARRIVED: at home | DELIVERED: completed | NOT DELIVERED: refusal/NAH/wrong product | NOT LOADED: missing/no stock/store not ready
-
-DELIVERY REQUIREMENTS:
-Someone 18+ must be present (exception: Lock-Box store-approved). Clear path required. Old units sanitary for haul away. Driver pre-call ~30 min before.
-
-NAH PROCEDURE:
-1. Driver pre-call 30 min prior
-2. Arrival: driver photographs building, contacts dispatch
-3. CX contacts customer 2nd time — arrival + 15-min departure window
-4. After 15 min: photo of door with NAH hanger, upload to EDP
-5. Customer MUST call store to reschedule
-PROPER NAH → customer calls store. No further CX action.
-IMPROPER NAH → CX contacts dispatcher + hauler + Area Manager to attempt team return.
-
-INSTALLATION — IN SCOPE (we do these):
-Appliances: Washers, Dryers, Refrigerators, Ranges
-Tasks: install feet/level, door swings, fridge strips, door reversal, anti-tip bracket, haul away, one-room move of old unit, stack kit/pedestals/steam kits, gas connection (where permitted + valve in place)
-
-INSTALLATION — DROP-OFF ONLY — "If it's in the Wall, don't Install!":
-Built-in Refrigerators, Built-in Ranges, Dishwashers, OTR Microwaves, Range Hoods, Drain Pans, Wall Ovens, Cook Tops, Drop-In Ranges, Air Conditioners, Water Heaters, Grills
-→ Garage or first floor drop-off only. Customer contacts Lowe's installation dept.
-
-INSTALLATION — OUT OF SCOPE (explain + recommend plumber/electrician):
-No shutoff valve within 6 ft (water) or 5 ft (gas) | Copper or plastic lines | Corroded pipes | Waterline through floor/cabinets | Range without anti-tip bracket (drop-off only) | Propane (NEVER, any state) | Gas-to-propane conversions (NEVER) | Hard wiring | Grounding alterations (needs electrician) | Dishwasher/OTR installation | Door removal to fit (unless customer consents) | HA of dishwasher/gas appliance still connected in non-gas market
-
-GAS INSTALLATION — UPDATED STATE LIST:
-CAN install natural gas in: Alabama, Alaska, Arkansas, California, Colorado, Delaware, Florida, Idaho, Illinois, Indiana, Kansas, Kentucky, Michigan, Mississippi, Missouri, Montana, Nebraska, Nevada, New Jersey, North Dakota, Ohio, Oklahoma, Oregon, Pennsylvania, Utah, Washington, West Virginia, Wisconsin, Wyoming.
-NOT on list = NO gas install. Propane = NEVER. Gas-to-propane = NEVER.
-
-REAL CASE CRITERIA — use for mixed/complex scenarios:
-
-Case 205 — Propane/LP gas on arrival: Drop-off only. Not certified for LP. Customer needs certified LP technician.
-Case 208 — Active hot water valve leak: Drop-off only. Refuse connection. Customer contacts licensed plumber, then Lowe's for service call.
-Case 209 — Leaking valve + upset customer: Drop-off only. Validate frustration, safety first. Customer: plumber → then Lowe's for reschedule.
-Case 215 — House under renovation, outlets not ready: Partial connection where safe (power only). Customer completes remainder (ice maker) when ready. Document what was/was not done.
-Case 216 — Plastic hose + glued gas line: Placement only, no connection. Non-standard = safety risk. Customer needs plumber/gas tech.
-Case 218 — Old unit still connected on arrival: Wait on-site for customer to disconnect. Once cleared: proceed with HA + drop-off/install. Do NOT leave and return.
-Case 211 — No haul away unit (previous team already removed): Drop-off only. HA not applicable. Document in order.
-Case 212 — Customer caused floor damage before delivery: Document pre-existing damage BEFORE proceeding. Complete install. Note in EDP: damage was pre-existing.
-Case 213/214 — Unit doesn't fit + hostile customer: Garage drop-off. Team safety first. Do NOT force. Document hostility, notify dispatcher + AM.
-Case 206 — Concealed damage (broken leg) during unboxing: Initiate Save the Sale. If customer refuses → RTW. No HA if delivery not completed (1:1 rule).
-Case 210 — Dent under plastic, customer rep present: If authorized contact accepts, proceed with install. Document name of person who approved in EDP notes.
-Case 204 — Short on truck + door damage: STS markdown for damaged items. RS for missing item. Document both in order.
-Case 207 — Building security denies access: RTW. Team withdraws. Leave voicemail. Notify dispatcher. Customer must contact building + Lowe's (COI requirements).
-Case 217 — Failed dryer delivery: No HA. Leave old unit so customer isn't left without service. Document. Customer contacts Lowe's for next steps.
-
-DRIVER LOAD REFUSAL / REJECTION:
-1. Get full details: route #, order #, reason for refusal
-2. Do NOT agree or disagree with driver on the spot
-3. Notify dispatcher immediately: truck #, stop(s) affected, reason given
-4. Dispatcher loops in Area Manager
-5. Document in order notes
-6. CX calls customer to explain delay/situation
-7. Safety concern → document + escalate, do NOT force delivery
-8. Driver behavior issue (refusal without valid reason) → Area Manager handles. CX does NOT negotiate pay or threaten driver.
-Example: Driver refused load (palm tree pot, safety concern). Store confirmed others carry it. → Mark NOT LOADED, notify dispatcher with full details, AM follows up with hauler.
-
-SAVE THE SALE — FULL PROCESS:
-Trigger: team reports cosmetic/concealed damage, customer present. Team MUST stay on-site throughout.
-
-Step 1: Get stop # + confirm photos uploaded to EDP
-Step 2: Note — Order #, Selling Channel (POS=store, Lowes_Com=online), 4-digit selling location, Item #
-  - Order starts 30 → online → selling location 0902
-  - Order starts 20 → store → next 4 digits = selling location
-
-Step 3 — Discounts:
-  - Back/Side damage: start 5%, max 20%
-  - Front damage: start 10%, max 20%
-  - Above 20%: escalate to Lowe's leadership or Lowe's Teams chat
-  - Always start LOW. Increase in 5% increments only. Never odd amounts. Never offer max immediately.
-
-Step 4 — STS Script: "Hi, this is [Name] calling from Maersk regarding your delivery from Lowe's. I've had a chance to review the photos provided by the team, and based on that assessment, I'm able to offer you [X]% off the retail selling price of the unit. If you're willing to accept this discount, the delivery team will move forward with the installation and completion of your delivery today. Also, Lowe's will be in contact with you directly with more details about the discount and how it will be applied."
-ONLY discuss percentage — NEVER dollar amounts. Never reference Lowes.com pricing.
-
-Refund types: Check/Cash (voucher via email → take to local Lowe's) | Gift Card (mailed, 2-5 biz days) | Credit/Debit (5-10 biz days)
-
-Step 5 — STS Chat (regardless of accept/decline): Send to regional STS Teams chat (open until 9pm local):
-Order # | Item # | Discount % | Offer Accepted (Y/N) | Photos Attached
-Lowe's responds: Retail Selling Price + Approved Offer Amount. Above 20%: dispatch must upload photos.
-
-Step 6 — STS Form: Your Name, XDT Location, Date, Order #, Selling Location, Item #, Retail Selling Price, Percent Off, Offer Amount, Offer Accepted, Product inspected at XDT = NO, Unit audited = NO, Approving Leader (Lowe's associate who approved). Submit for BOTH accepted AND denied offers.
-
-Discount formula: Retail Price × decimal = Discount Amount (5%=0.05, 10%=0.10, 15%=0.15, 20%=0.20)
-If customer refuses → team reloads, dispatch documents + notifies XDT via email.
-
-CLAIMS: Ask if customer has claim #. YES → direct to Claims Dept. NO → customer must contact Lowe's first (Claims can't act without claim in system). Before contacting Claims: EDP ☰ menu → Claims → search by claim # or order #. Email to Claims: claim #, order #, issue summary, what customer is requesting.
-
-COI / BUILDING REQUIREMENTS: COI = Certificate of Insurance. Some buildings require it before allowing delivery. Customer provides building requirements directly to Lowe's. CX: locate order → provide store contact (or Lowe's CS for XDT) → advise customer to contact Lowe's → note the order.
-
-ESCALATION TIERS:
-Tier 1 — Notify Dispatcher/Hauler: NAH/Improper NAH, routing issues, copper/plastic line, corroded valves, no shutoff valve, items too large, truck delay/breakdown, intraday not met, drop-off disputes, small truck, lock-box, minor in home, HA disputes, driver load refusal
-Tier 2 — CX Leader IMMEDIATELY: Gas leak, water leak, property damage (no altercation), vehicle accident, team hit electrical/cable/phone lines, unsanitary conditions
-Tier 3 — CX Leader URGENT: Hostage/police, customer mentions social media/news, property damage WITH altercation, threat of harm to anyone
-
-DIFFICULT SITUATIONS:
-Water Leak: Shut off water → detailed info → CX Leader IMMEDIATELY → inform dispatcher/team/hauler/AM → note system → claim: provide store/XDT info
-Gas Leak: Detailed info → CX Leader IMMEDIATELY → inform dispatcher/team/hauler/AM → if team can't return: offer Gas Company or Fire Dept → notes + email to field group + CX Leadership
-Hostile: Keep team on recorded line DO NOT DISCONNECT → CX Leader immediately → if can't de-escalate: market specialist → dispatcher to AM → notes + email
-Injury: Keep on recorded line, max detail → CX Leader → prepare transfer → inform dispatcher → notes + email to Field Group + CX Leaders
-
-EDP NOTE FORMAT: "[VTV/LVM] w/ [Driver/Cust], [situation]. [Action taken]. [Outcome/next step]. [Initials]"
-Examples:
-- "VTV w/ Driver, unable to install washer - corroded valves, photos in system. Called Cust, advised contact store for service call once valves replaced. ER0149"
-- "VTV w/ Cust, Del. Team completed proper NAH. Cust transferred to Lowe's for RS. ER0149"
-- "VTV w/ Driver, old appliance still connected on arrival. Instructed team to wait on-site. Cust disconnected unit, proceeded w/ HA + drop-off. Delivery completed. ER0149"
-- "VTV w/ Driver, unit doesn't fit + hostile Cust. Garage drop-off completed. Dispatcher + AM notified. ER0149"
-
-COMMUNICATION:
-Avoid: "You need to / You have to / There is nothing I can do / Unfortunately / I can have the team do that (without confirming)"
-Use: "Would it be possible...? / Let me look into this / I will work on finding a solution / I apologize for the inconvenience"
-Internal (Maersk team): full transparency, over-communicate.
-External (customers, Lowe's): solution-focused, don't assign blame, don't share everything that went wrong.
-
-GOVERNMENT ORDERS: Identified by program acronym between name (e.g., "John COAD Doe"). Programs: MYCAP, CLEARESULT, COAD, FIRST ENERGY. Highly regulated — if requirements not met, product returns to store/warehouse. Exception: cut power cord of old unit with customer consent + field leadership approval (government orders only, last resort).
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-RESPONSE RULES
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-1. Be concise — agent is on a live call
-2. Mixed conditions (part in-scope, part out): address EACH condition separately
-3. Too complex or ambiguous to standardize: say so clearly, recommend supervisor
-4. Include note_template whenever a documentation-worthy event occurs
-5. notify_dispatcher: true for any driver issue, route problem, or load refusal
-6. escalate: true for Tier 2 and Tier 3 only
-7. Respond in same language as the agent (Spanish or English)
-8. Outside knowledge base: "This scenario is not covered in my knowledge base — consult your supervisor or Team Lead."`;
-
-let history = [];
-let isLoading = false;
-const messagesDiv = document.getElementById('messages');
-const inputEl = document.getElementById('userInput');
-
-function md(text) {
-  return text
-    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
-    .replace(/`([^`]+)`/g,'<span class="tag">$1</span>')
-    .replace(/^- (.*)/gm,'<li>$1</li>')
-    .replace(/(<li>.*<\/li>\n?)+/g,m=>'<ul>'+m+'</ul>')
-    .replace(/\n/g,'<br>');
+function loadData(){
+  if(localStorage.getItem('dataVersion')!==DATA_VERSION){localStorage.removeItem('amList');localStorage.removeItem('pmList');localStorage.setItem('dataVersion',DATA_VERSION);}
+  try{amList=JSON.parse(localStorage.getItem('amList')||'null')||JSON.parse(JSON.stringify(DEFAULT_AM));}catch(e){amList=JSON.parse(JSON.stringify(DEFAULT_AM));}
+  try{pmList=JSON.parse(localStorage.getItem('pmList')||'null')||JSON.parse(JSON.stringify(DEFAULT_PM));}catch(e){pmList=JSON.parse(JSON.stringify(DEFAULT_PM));}
+  try{manualStores=JSON.parse(localStorage.getItem('manualStores')||'{}');}catch(e){}
+  Object.entries(manualStores).forEach(([s,b])=>{STORE_MAP[parseInt(s)]=b;});
 }
-
-function buildBotBubble(parsed, rawText) {
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble';
-
-  if (parsed) {
-    const t = parsed.tier;
-    if (t === 2 || t === 3) bubble.classList.add(t===3?'tier3':'tier2');
-    else if (t === 1) bubble.classList.add('tier1');
-    else if (parsed.notify_dispatcher && !parsed.escalate) bubble.classList.add('dispatcher');
-
-    if (parsed.badge) {
-      const b = document.createElement('div');
-      b.className = 'badge ' + (t===2||t===3 ? 'red' : parsed.notify_dispatcher && !parsed.escalate ? 'purple' : 'yellow');
-      b.innerHTML = (t===2||t===3?'⚠ ':t===1?'⚡ ':'📡 ') + parsed.badge + (parsed.reason ? ' — ' + parsed.reason : '');
-      bubble.appendChild(b);
-    }
-
-    const body = document.createElement('div');
-    body.innerHTML = md(parsed.response || rawText);
-    bubble.appendChild(body);
-
-    if (parsed.note_template) {
-      const nb = document.createElement('div');
-      nb.className = 'note-box';
-      nb.innerHTML = '<div class="note-label">📋 EDP Note Template</div>' + parsed.note_template;
-      bubble.appendChild(nb);
-    }
-  } else {
-    bubble.innerHTML = md(rawText);
+function saveData(){
+  try{
+    localStorage.setItem('amList',JSON.stringify(amList));
+    localStorage.setItem('pmList',JSON.stringify(pmList));
+    localStorage.setItem('manualStores',JSON.stringify(manualStores));
+    localStorage.setItem('dataUpdatedAt',String(Date.now()));
+  }catch(e){}
+}
+function setShift(s){
+  shift=s;const am=s==='AM';
+  document.getElementById('btnAM').className='shift-btn'+(am?' am':'');
+  document.getElementById('btnPM').className='shift-btn'+(!am?' pm':'');
+  document.getElementById('searchBtn').className=am?'btn':'btn blue';
+  const cls=am?'active-am':'active-pm';
+  if(document.getElementById('tab-search').classList.contains('active')){
+    document.getElementById('tabSearch').className='tab '+cls;
+    document.getElementById('tabUpdate').className='tab';
+  }else{
+    document.getElementById('tabSearch').className='tab';
+    document.getElementById('tabUpdate').className='tab '+cls;
   }
-  return bubble;
+  document.getElementById('editorLabel').className='shift-label '+(am?'am':'pm');
+  document.getElementById('editorLabel').textContent=am?'☀️ Turno AM':'🌙 Turno PM';
+  clearResult();
+  if(unlocked)renderForm();
+}
+function switchTab(name){
+  const am=shift==='AM';const cls=am?'active-am':'active-pm';
+  ['search','handoff','update'].forEach(t=>{
+    const el=document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1));
+    if(el)el.className='tab'+(name===t?' '+cls:'');
+  });
+  document.getElementById('tab-search').classList.toggle('active',name==='search');
+  document.getElementById('tab-handoff').classList.toggle('active',name==='handoff');
+  document.getElementById('tab-update').classList.toggle('active',name==='update');
+  if(name==='update'&&unlocked)renderForm();
+  if(name==='handoff')renderHandoff();
+}
+function findBundle(raw){
+  const upper=raw.toUpperCase().trim();
+  const compact=upper.replace(/\s+/g,'');
+  const xdt=shift==='AM'?XDT_AM:XDT_PM;
+  for(const[k,v]of Object.entries(xdt)){if(upper.startsWith(k)||compact.startsWith(k))return v;}
+  const mn=raw.match(/(\d{3,4})/);
+  if(mn){
+    const n=parseInt(mn[1]);
+    // Check if it's a flatbed route (contains LFB)
+    if(upper.includes('LFB')){
+      if(shift==='AM'){
+        if(NFB_STORES.has(n))return 14; // NFB = B14 AM
+        if(SFB_STORES.has(n))return 15; // SFB = B15 AM
+      } else {
+        if(NFB_STORES.has(n))return 6;  // NFB = B6 PM (Osvaldo Salas)
+        if(SFB_STORES.has(n))return 6;  // SFB = B6 PM (Osvaldo Salas)
+      }
+    }
+    const map=shift==='AM'?STORE_MAP:PM_STORE_MAP;
+    if(map[n])return map[n];
+  }
+  return null;
+}
+function getInfo(b){return(shift==='AM'?amList:pmList).find(x=>x.b===b)||null;}
+function lookup(){
+  const raw=document.getElementById('routeInput').value.trim();
+  if(!raw)return;
+  clearResult();
+  const upper=raw.toUpperCase().trim();
+  const mn=raw.match(/(\d{3,4})/);
+  const b=findBundle(raw);
+  if(b){
+    const info=getInfo(b);const am=shift==='AM';
+    document.getElementById(am?'rNameAM':'rNamePM').textContent=info?info.dispatcher:'—';
+    document.getElementById(am?'rMetaAM':'rMetaPM').textContent='Bundle '+b+(info?' — '+info.area:'');
+    const chips=document.getElementById(am?'rChipsAM':'rChipsPM');
+    const cc=am?'chip chip-am':'chip chip-pm';
+    let chipsHtml='<span class="'+cc+'">'+(am?'☀️ AM':'🌙 PM')+'</span><span class="'+cc+'">B'+b+'</span>'+(info&&info.sts?'<span class="chip chip-sts">STS</span>':'');
+    // Add handoff badge for AM searches
+    if(am&&info&&info.handoff){
+      const pmInfo=getPMInfoForBundle(b);
+      const pmName=pmInfo?pmInfo.dispatcher:'PM dispatcher';
+      chipsHtml+='<div style="width:100%;margin-top:8px;"></div>';
+      chipsHtml+='<div class="handoff-badge">🔄 Handoff '+info.handoff+' → '+pmName+'</div>';
+    }
+    chips.innerHTML=chipsHtml;
+    document.getElementById(am?'resultAM':'resultPM').style.display='block';
+    // Show LFB warning if store has flatbed routes but LFB not in search
+    if(!upper.includes('LFB')&&(NFB_STORES.has(parseInt(mn?mn[1]:0))||SFB_STORES.has(parseInt(mn?mn[1]:0)))){
+      document.getElementById('lfbWarning').style.display='block';
+    } else {
+      document.getElementById('lfbWarning').style.display='none';
+    }
+  }else{
+    const mn=raw.match(/^(\d+)/);
+    const storeNum=mn?parseInt(mn[1]):0;
+    if(LV_STORES.has(storeNum)){
+      document.getElementById('warnMsg').innerHTML='<strong>Store '+storeNum+' — Las Vegas</strong><br>Check the Las Vegas thread in Teams.';
+      document.getElementById('assignBox').style.display='none';
+      document.getElementById('resultUnknown').style.display='block';
+      return;
+    }
+    document.getElementById('warnMsg').innerHTML='<strong>Store '+(mn?mn[1]:raw)+' no encontrada</strong><br>Asígnala al bundle correcto y quedará guardada.';
+    const list=shift==='AM'?amList:pmList;
+    const sel=document.getElementById('assignBundle');
+    sel.innerHTML=list.map(d=>'<option value="'+d.b+'">Bundle '+d.b+' — '+d.dispatcher+'</option>').join('');
+    sel.dataset.store=mn?mn[1]:raw;
+    document.getElementById('assignBox').style.display='block';
+    document.getElementById('resultUnknown').style.display='block';
+  }
+}
+function assignNewStore(){
+  const sel=document.getElementById('assignBundle');
+  const store=parseInt(sel.dataset.store);const b=parseInt(sel.value);
+  if(!store||!b)return;
+  manualStores[store]=b;(shift==='AM'?STORE_MAP:PM_STORE_MAP)[store]=b;
+  saveData();document.getElementById('resultUnknown').style.display='none';lookup();
+  toast('✓ Store '+store+' guardada en Bundle '+b);
+}
+function clearResult(){
+  ['resultAM','resultPM','resultUnknown','lfbWarning'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('assignBox').style.display='none';
+}
+function saveToken(val){
+  if(val){localStorage.setItem('ghToken',val);document.getElementById('tokenStatus').textContent='✓ Token guardado';}
+  else{localStorage.removeItem('ghToken');document.getElementById('tokenStatus').textContent='';}
 }
 
-function appendMsg(role, parsed, rawText) {
-  const div = document.createElement('div');
-  div.className = 'msg ' + role;
-  const av = document.createElement('div');
-  av.className = 'avatar ' + role;
-  av.textContent = role === 'bot' ? 'CX' : 'AG';
-  const bubble = role === 'bot' ? buildBotBubble(parsed, rawText) : (() => {
-    const b = document.createElement('div');
-    b.className = 'bubble';
-    b.textContent = rawText;
-    return b;
-  })();
-  div.appendChild(av);
-  div.appendChild(bubble);
-  messagesDiv.appendChild(div);
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+function checkPassword(){
+  if(document.getElementById('passwordInput').value===PASS){
+    unlocked=true;
+    document.getElementById('lockCard').style.display='none';
+    document.getElementById('editorCard').style.display='block';
+    // Load saved token
+    const saved=localStorage.getItem('ghToken');
+    if(saved){
+      document.getElementById('ghTokenInput').value=saved;
+      document.getElementById('tokenStatus').textContent='✓ Token guardado';
+    }
+    renderForm();
+  }else{
+    document.getElementById('lockError').style.display='block';
+    document.getElementById('passwordInput').value='';
+  }
 }
-
-function showThinking() {
-  const div = document.createElement('div');
-  div.className = 'msg bot'; div.id = 'thinking';
-  const av = document.createElement('div'); av.className = 'avatar bot'; av.textContent = 'CX';
-  const b = document.createElement('div'); b.className = 'thinking';
-  b.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
-  div.appendChild(av); div.appendChild(b);
-  messagesDiv.appendChild(div);
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+function lock(){
+  unlocked=false;
+  document.getElementById('lockCard').style.display='block';
+  document.getElementById('editorCard').style.display='none';
+  document.getElementById('passwordInput').value='';
+  document.getElementById('lockError').style.display='none';
+  switchTab('search');
 }
-
-async function sendMessage() {
-  if (isLoading) return;
-  const text = inputEl.value.trim();
-  if (!text) return;
-  inputEl.value = ''; inputEl.style.height = 'auto';
-  appendMsg('user', null, text);
-  history.push({ role: 'user', content: text });
-  isLoading = true; showThinking();
+function renderForm(){
+  const list=shift==='AM'?amList:pmList;
+  document.getElementById('bundleRows').innerHTML=list.map((d,i)=>
+    '<div class="bundle-row"><div class="row-top"><span class="bnum">Bundle '+d.b+'</span><label class="sts-check"><input type="checkbox" '+(d.sts?'checked':'')+' onchange="updateSTS('+i+',this.checked)"> STS</label><button class="del-row" onclick="delRow('+i+')">✕</button></div><div class="row-fields"><div><label>Área</label><input type="text" value="'+d.area+'" oninput="updateArea('+i+',this.value)" placeholder="XDTGRD 3939 | 844"></div><div><label>Dispatcher</label><input type="text" value="'+d.dispatcher+'" oninput="updateDisp('+i+',this.value)" placeholder="Nombre Apellido"></div></div></div>'
+  ).join('');
+}
+function updateArea(i,v){(shift==='AM'?amList:pmList)[i].area=v;}
+function updateHandoff(i,v){if(shift==='AM')amList[i].handoff=v;}
+function updateDisp(i,v){(shift==='AM'?amList:pmList)[i].dispatcher=v;}
+function updateSTS(i,v){(shift==='AM'?amList:pmList)[i].sts=v;}
+function delRow(i){(shift==='AM'?amList:pmList).splice(i,1);renderForm();}
+function addRow(){
+  const list=shift==='AM'?amList:pmList;
+  list.push({b:Math.max(...list.map(x=>x.b))+1,area:'',dispatcher:'',sts:false});
+  renderForm();
+}
+async function saveList(){
+  saveData();
+  const n=document.getElementById('saveNotice');
+  n.style.display='block';
+  n.textContent='⏳ Guardando y sincronizando...';
 
   try {
-    const _k = atob("c2stYW50LWFwaTAzLVd5U2xZZ0xzRnhoMmNhdVp0QVlFOUsxbTczSXdoZ0hkQ2xVQ2U5anBRMmJVeDZsYkJNR3JTRlpub2NxMV9Yc1AzZE1aM1hhbk9zYnFIeFM3d0dOcEZ3LW1zR3ZUQUFB");
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: 'POST',
-      headers: { "Content-Type": "application/json", "x-api-key": _k, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
-      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: SYS, messages: history })
-    });
-    const data = await res.json();
-    document.getElementById('thinking')?.remove();
-    const raw = data.content?.[0]?.text || '';
-    history.push({ role: 'assistant', content: raw });
-    let parsed = null;
-    try { parsed = JSON.parse(raw.replace(/```json|```/g,'').trim()); } catch(e) {}
-    appendMsg('bot', parsed, parsed ? parsed.response : raw);
+    await pushToGitHub();
+    n.textContent='✓ Lista guardada y sincronizada';
+    clearTimeout(n._t);n._t=setTimeout(()=>{n.style.display='none';n.textContent='✓ Lista guardada';},3000);
+    toast('✓ Lista '+shift+' sincronizada con GitHub');
   } catch(e) {
-    document.getElementById('thinking')?.remove();
-    appendMsg('bot', null, '**Connection error.** Please try again or contact your supervisor.');
-  } finally { isLoading = false; }
-}
-
-inputEl.addEventListener('input', function() { this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,120)+'px'; });
-inputEl.addEventListener('keydown', e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} });
-
-// PASSWORD GATE
-const PASS = 'lowes25';
-const authScreen = document.createElement('div');
-authScreen.id = 'auth';
-authScreen.style.cssText = 'position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:20px;';
-authScreen.innerHTML = `
-  <div style="text-align:center;margin-bottom:8px;">
-    <div style="font-family:IBM Plex Mono,monospace;font-weight:600;font-size:16px;color:#42b0d5;letter-spacing:0.1em;">MAERSK</div>
-    <div style="font-size:12px;color:#8899bb;margin-top:4px;">Lowe's Last Mile CX Assistant</div>
-  </div>
-  <div style="background:#111827;border:1px solid #1e3a5f;border-radius:12px;padding:28px 32px;width:300px;display:flex;flex-direction:column;gap:14px;">
-    <div style="font-size:13px;color:#e2e8f0;font-weight:600;text-align:center;">Enter access password</div>
-    <input id="passInput" type="password" placeholder="Password" style="background:#1a2236;border:1px solid #1e3a5f;border-radius:8px;padding:10px 14px;color:#e2e8f0;font-size:14px;outline:none;font-family:IBM Plex Sans,sans-serif;width:100%;" />
-    <div id="passError" style="font-size:11px;color:#ef4444;text-align:center;display:none;">Incorrect password. Try again.</div>
-    <button id="passBtn" style="padding:11px;background:linear-gradient(135deg,#0066cc,#00aaff);border:none;border-radius:8px;color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:IBM Plex Sans,sans-serif;">Access</button>
-  </div>
-  <div style="font-size:11px;color:#1e3a5f;font-family:IBM Plex Mono,monospace;">CONFIDENTIAL · INTERNAL USE ONLY</div>
-`;
-document.body.appendChild(authScreen);
-
-function checkPass() {
-  const val = document.getElementById('passInput').value;
-  if (val === PASS) {
-    authScreen.style.opacity = '0';
-    authScreen.style.transition = 'opacity 0.3s';
-    setTimeout(() => authScreen.remove(), 300);
-  } else {
-    document.getElementById('passError').style.display = 'block';
-    document.getElementById('passInput').value = '';
-    document.getElementById('passInput').focus();
+    n.textContent='⚠️ Guardado local. Error al sincronizar: '+e.message;
+    clearTimeout(n._t);n._t=setTimeout(()=>{n.style.display='none';n.textContent='✓ Lista guardada';},5000);
   }
 }
-document.getElementById('passBtn').onclick = checkPass;
-document.getElementById('passInput').addEventListener('keydown', e => { if(e.key==='Enter') checkPass(); });
-setTimeout(() => document.getElementById('passInput').focus(), 100);
 
-// Welcome
-const wd = document.createElement('div'); wd.className = 'msg bot';
-const wa = document.createElement('div'); wa.className = 'avatar bot'; wa.textContent = 'CX';
-const wb = document.createElement('div'); wb.className = 'bubble';
-wb.innerHTML = md('**Maersk Last Mile CX Assistant v2** — ready.\n\nDescribe the situation and I\'ll give you the right protocol, EDP note template, and escalation guidance. Works for **customer calls**, **driver issues**, and **installation scenarios**.');
-const wc = document.createElement('div'); wc.className = 'chips';
-['Ghost / dropped call','Driver refusing load','Active water leak','Save the Sale – damage','Installation out of scope','NAH procedure','Supervisor transfer','Customer wants to reschedule','COI / building requirements','Claims process'].forEach(label => {
-  const c = document.createElement('button'); c.className = 'chip'; c.textContent = label;
-  c.onclick = () => { inputEl.value = label; sendMessage(); };
-  wc.appendChild(c);
-});
-wb.appendChild(wc); wd.appendChild(wa); wd.appendChild(wb); messagesDiv.appendChild(wd);
+async function pushToGitHub(){
+  const token=localStorage.getItem('ghToken')||'';
+  if(!token)throw new Error('No hay token configurado. Pégalo en el campo GitHub Token.');
+  const headers={'Authorization':'token '+token,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'};
+  const data={amList,pmList,updatedAt:new Date().toISOString()};
+  const encoded=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));
+
+  // Try to get existing file SHA (may not exist yet)
+  let sha=null;
+  try {
+    const getRes=await fetch('https://api.github.com/repos/'+GH_REPO+'/contents/data.json',{headers});
+    if(getRes.ok){const d=await getRes.json();sha=d.sha;}
+  } catch(e){}
+
+  const body={message:'Update dispatcher list '+new Date().toLocaleString(),content:encoded};
+  if(sha)body.sha=sha;
+
+  const pushRes=await fetch('https://api.github.com/repos/'+GH_REPO+'/contents/data.json',{
+    method:'PUT',headers,body:JSON.stringify(body)
+  });
+  if(!pushRes.ok){const err=await pushRes.json();throw new Error(err.message||'Error al subir');}
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.display='block';
+  clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',2500);
+}
+function getPMInfoForBundle(amBundle){
+  // Map AM bundle to corresponding PM bundle
+  const AM_TO_PM={1:1,2:2,3:3,4:3,5:4,6:4,7:5,8:7,9:7,10:8,11:10,12:10,13:9,14:6,15:6};
+  const pmB=AM_TO_PM[amBundle];
+  return pmB?pmList.find(x=>x.b===pmB)||null:null;
+}
+
+function renderHandoff(){
+  const list=amList;
+  const container=document.getElementById('handoffList');
+  if(!container)return;
+  container.innerHTML=list.filter(d=>d.handoff).sort((a,b)=>{
+    // Sort by handoff time
+    const toMin=t=>{if(!t)return 9999;const[h,m]=t.replace(' AM','').replace(' PM','').split(':');return (parseInt(h)%12+(t.includes('PM')?12:0))*60+parseInt(m);};
+    return toMin(a.handoff)-toMin(b.handoff);
+  }).map(d=>{
+    const pmInfo=getPMInfoForBundle(d.b);
+    return '<div class="handoff-row">'+
+      '<span class="handoff-bundle">B'+d.b+'</span>'+
+      '<span class="handoff-area">'+d.area+'</span>'+
+      '<span class="handoff-time">'+d.handoff+'</span>'+
+      (pmInfo?'<span class="pm-takes">→ '+pmInfo.dispatcher+'</span>':'')+
+    '</div>';
+  }).join('');
+}
+
+document.getElementById('routeInput').addEventListener('keydown',e=>{if(e.key==='Enter')lookup();});
+// Load latest data from GitHub on page load
+loadFromGitHub();
+document.getElementById('passwordInput').addEventListener('keydown',e=>{if(e.key==='Enter')checkPassword();});
+loadData();
 </script>
 </body>
 </html>
