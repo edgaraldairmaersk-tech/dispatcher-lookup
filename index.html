@@ -172,7 +172,7 @@ const XDT_AM={XDTGRD:1,XDTHZL:2,XDTDEN:3,XDTCDR:4,XDTKC:5,XDTJMO:6,XDTPHX:7,XDTM
 const XDT_PM={XDTCDR:1,XDTGRD:1,XDTHZL:2,XDTKC:3,XDTJMO:4,XDTDEN:5,XDTPHX:5,XDTMV:7,XDTLA:7,XDTTRY:8,XDTOAK:8,XDTWA:9,XDTORG:10};
 const DATA_VERSION='6';
 const PASS='dispatch2024';
-const GH_TOKEN=localStorage.getItem('ghToken')||'';
+// GH_TOKEN loaded dynamically in pushToGitHub
 const GH_REPO='edgaraldairmaersk-tech/dispatcher-lookup';
 const GH_FILE='index.html';
 const DEFAULT_AM=[
@@ -385,7 +385,9 @@ async function saveList(){
 }
 
 async function pushToGitHub(){
-  const headers={'Authorization':'token '+GH_TOKEN,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'};
+  const token=localStorage.getItem('ghToken')||'';
+  if(!token)throw new Error('No hay token configurado. Pégalo en el campo GitHub Token.');
+  const headers={'Authorization':'token '+token,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'};
   const data={amList,pmList,updatedAt:new Date().toISOString()};
   const encoded=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));
 
