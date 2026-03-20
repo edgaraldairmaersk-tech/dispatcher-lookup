@@ -10,8 +10,8 @@
     {
       "b": 2,
       "area": "XDTHZL 3887 | 847 | 1286",
-      "dispatcher": "Moises Estrada",
-      "sts": true,
+      "dispatcher": "Mario Pacheco",
+      "sts": false,
       "handoff": "11:30 AM"
     },
     {
@@ -38,21 +38,21 @@
     {
       "b": 6,
       "area": "XDTJMO 3995 | 863 | 886 | 1244",
-      "dispatcher": "David Vega",
+      "dispatcher": "Carlo Tolentino",
       "sts": true,
       "handoff": "12:00 PM"
     },
     {
       "b": 7,
       "area": "XDTPHX 3345 | PHX 883/1101 | 1262",
-      "dispatcher": "Estefany Garcia",
+      "dispatcher": "Carlo Morales",
       "sts": false,
       "handoff": "1:00 PM"
     },
     {
       "b": 8,
       "area": "XDTMV 3363 | 1236 | AK",
-      "dispatcher": "Carlo Tolentino",
+      "dispatcher": "Adriana Bernal",
       "sts": true,
       "handoff": "1:00 PM"
     },
@@ -66,7 +66,7 @@
     {
       "b": 10,
       "area": "XDTTRY 3966 | CO 1238/1284",
-      "dispatcher": "Mario Pacheco",
+      "dispatcher": "Bryan Martinez",
       "sts": true,
       "handoff": "1:00 PM"
     },
@@ -80,28 +80,28 @@
     {
       "b": 12,
       "area": "XDTOAK 3974 | 895/1239",
-      "dispatcher": "Pablo Sosa",
+      "dispatcher": "Julio Guardado",
       "sts": true,
       "handoff": "1:00 PM"
     },
     {
       "b": 13,
       "area": "XDTWA 3989 | WA 893/894 | 1253",
-      "dispatcher": "Carlo Morales",
+      "dispatcher": "Gustavo Pilloni",
       "sts": true,
       "handoff": "1:00 PM"
     },
     {
       "b": 14,
       "area": "NFB | 1104/1267 | 880",
-      "dispatcher": "Luis Hernandez",
+      "dispatcher": "Estefany Garcia",
       "sts": false,
       "handoff": ""
     },
     {
       "b": 15,
       "area": "SFB | 882 | 884",
-      "dispatcher": "Gustavo Pilloni",
+      "dispatcher": "Luis Hernandez",
       "sts": false,
       "handoff": ""
     }
@@ -168,5 +168,5 @@
       "sts": false
     }
   ],
-  "updatedAt": "2026-03-19T15:28:40.243Z"
+  "updatedAt": "2026-03-20T15:52:32.237Z"
 }
