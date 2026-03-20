@@ -111,48 +111,48 @@
       "b": 1,
       "area": "XDTCDR 3984 + XDTGRD 3939 | 886 | 844/846/1312",
       "dispatcher": "Erick Barcenas",
-      "sts": false
+      "sts": true
     },
     {
       "b": 2,
       "area": "XDTHZL 3887 | 847 | 1286 | 863 | 1244",
-      "dispatcher": "Luis Arreguin",
+      "dispatcher": "Osvaldo Salas",
       "sts": false
     },
     {
       "b": 3,
       "area": "XDTKC 3994 | CO 1238/1284 | 1223 | 1232",
-      "dispatcher": "Mauricio Gonzales",
-      "sts": true
+      "dispatcher": "Dulce Gonzales",
+      "sts": false
     },
     {
       "b": 4,
       "area": "XDTJMO 3995 | 888/1254 | 1295 | 1218 | UT-897",
-      "dispatcher": "Alexis Owen",
+      "dispatcher": "Humberto Cardenas",
       "sts": true
     },
     {
       "b": 5,
       "area": "XDTDEN 3987 | XDT 3345 | PHX 883/1101 | 1262",
-      "dispatcher": "Humberto Cardenas",
+      "dispatcher": "Alexis Coello",
       "sts": true
     },
     {
       "b": 6,
       "area": "SFB | NFB | 1236",
-      "dispatcher": "Osvaldo Salas",
+      "dispatcher": "Hersair Mora",
       "sts": false
     },
     {
       "b": 7,
       "area": "XDTMV 3363 | XDTLA 3956 | 882 | 1104/1267",
-      "dispatcher": "Alan Becerra",
-      "sts": false
+      "dispatcher": "Sebastian Samano",
+      "sts": true
     },
     {
       "b": 8,
       "area": "XDTTRY 3966 | XDTOAK 3974 | 1253 | 1357 | 884",
-      "dispatcher": "Dulce Gonzales",
+      "dispatcher": "Mauricio Gonzales",
       "sts": true
     },
     {
@@ -164,9 +164,9 @@
     {
       "b": 10,
       "area": "XDTORG 3971 | OR 1100 | 895/1239 | HI",
-      "dispatcher": "Dara Gomez",
-      "sts": false
+      "dispatcher": "Aime Hernandez",
+      "sts": true
     }
   ],
-  "updatedAt": "2026-03-20T15:52:32.237Z"
+  "updatedAt": "2026-03-20T20:41:01.574Z"
 }
