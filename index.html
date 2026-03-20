@@ -86,9 +86,37 @@ input[type=text]:focus,input[type=password]:focus{outline:none;border-color:var(
 @media(prefers-color-scheme:dark){.handoff-time{background:#2a1f0a;color:#FAC775;}}
 .pm-takes{font-size:11px;color:var(--blue-sub);margin-left:8px;white-space:nowrap;}
 .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#1a1a18;color:white;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:500;z-index:999;display:none;}
+.teams-section{margin-top:12px;border-top:1px solid var(--border);padding-top:12px;}
+.teams-title{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.tpl-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.tpl-chip{font-size:12px;font-weight:600;padding:4px 12px;border-radius:99px;cursor:pointer;border:1px solid var(--blue-border);background:var(--blue-light);color:var(--blue-text);transition:all .15s;}
+.tpl-chip:hover{background:var(--blue-border);color:var(--blue-text);}
+.tpl-chip.active-tpl{background:var(--blue);color:white;border-color:var(--blue);}
+.tpl-detail-wrap{display:none;animation:fadeIn .15s ease;}
+.tpl-detail-wrap.show{display:block;}
+.tpl-preview{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-size:13px;color:var(--text);line-height:1.6;white-space:pre-wrap;margin-bottom:8px;}
+.tpl-extra{width:100%;padding:9px 12px;font-size:13px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);resize:none;font-family:inherit;margin-bottom:8px;}
+.tpl-extra:focus{outline:none;border-color:var(--blue);}
+.tpl-copy-btn{width:100%;padding:10px;font-size:14px;font-weight:600;cursor:pointer;border-radius:var(--radius-sm);border:none;background:var(--blue);color:white;transition:background .15s;}
+.tpl-copy-btn:hover{background:#0C447C;}
+.tpl-copied{font-size:12px;color:var(--green);font-weight:600;display:none;text-align:center;margin-top:6px;}
 .lfb-warning{background:#FFF3CD;border:1px solid #FFCB47;border-radius:var(--radius-sm);padding:10px 12px;margin-top:10px;display:none;font-size:12px;color:#7B4F00;line-height:1.5;}
 .lfb-warning strong{font-weight:700;display:block;margin-bottom:2px;}
-@media(prefers-color-scheme:dark){.lfb-warning{background:#2a1f0a;border-color:#BA7517;color:#FAC775;}}
+@media(prefers-color-scheme:dark){.teams-section{margin-top:12px;border-top:1px solid var(--border);padding-top:12px;}
+.teams-title{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.tpl-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.tpl-chip{font-size:12px;font-weight:600;padding:4px 12px;border-radius:99px;cursor:pointer;border:1px solid var(--blue-border);background:var(--blue-light);color:var(--blue-text);transition:all .15s;}
+.tpl-chip:hover{background:var(--blue-border);color:var(--blue-text);}
+.tpl-chip.active-tpl{background:var(--blue);color:white;border-color:var(--blue);}
+.tpl-detail-wrap{display:none;animation:fadeIn .15s ease;}
+.tpl-detail-wrap.show{display:block;}
+.tpl-preview{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-size:13px;color:var(--text);line-height:1.6;white-space:pre-wrap;margin-bottom:8px;}
+.tpl-extra{width:100%;padding:9px 12px;font-size:13px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);resize:none;font-family:inherit;margin-bottom:8px;}
+.tpl-extra:focus{outline:none;border-color:var(--blue);}
+.tpl-copy-btn{width:100%;padding:10px;font-size:14px;font-weight:600;cursor:pointer;border-radius:var(--radius-sm);border:none;background:var(--blue);color:white;transition:background .15s;}
+.tpl-copy-btn:hover{background:#0C447C;}
+.tpl-copied{font-size:12px;color:var(--green);font-weight:600;display:none;text-align:center;margin-top:6px;}
+.lfb-warning{background:#2a1f0a;border-color:#BA7517;color:#FAC775;}}
 </style>
 </head>
 <body>
@@ -103,6 +131,7 @@ input[type=text]:focus,input[type=password]:focus{outline:none;border-color:var(
   </div>
   <div class="tabs">
     <button class="tab active-am" id="tabSearch" onclick="switchTab('search')">Buscar</button>
+    <button class="tab" id="tabMessage" onclick="switchTab('message')">Mensaje</button>
     <button class="tab" id="tabHandoff" onclick="switchTab('handoff')">Handoff</button>
     <button class="tab" id="tabUpdate" onclick="switchTab('update')">Actualizar lista</button>
   </div>
@@ -112,8 +141,36 @@ input[type=text]:focus,input[type=password]:focus{outline:none;border-color:var(
       <input type="text" id="routeInput" placeholder="ej. 2533BOX01 / XDTJMO06 / 2533 / mkt 884" oninput="clearResult()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
       <p class="hint">Route code, store number, código XDT o número de mercado</p>
       <button class="btn" id="searchBtn" onclick="lookup()">Buscar dispatcher</button>
-      <div class="result-am" id="resultAM"><div class="rname-am" id="rNameAM"></div><div class="rmeta rmeta-am" id="rMetaAM"></div><div class="chips" id="rChipsAM"></div></div>
-      <div class="result-pm" id="resultPM"><div class="rname-pm" id="rNamePM"></div><div class="rmeta rmeta-pm" id="rMetaPM"></div><div class="chips" id="rChipsPM"></div></div>
+      <div class="result-am" id="resultAM">
+        <div class="rname-am" id="rNameAM"></div>
+        <div class="rmeta rmeta-am" id="rMetaAM"></div>
+        <div class="chips" id="rChipsAM"></div>
+        <div class="teams-section">
+          <div class="teams-title">Send to Teams</div>
+          <div class="tpl-chips" id="tplChipsAM"></div>
+          <div class="tpl-detail-wrap" id="tplDetailAM">
+            <div class="tpl-preview" id="tplPreviewAM"></div>
+            <textarea class="tpl-extra" id="tplExtraAM" rows="2" placeholder="Add details... (optional)" oninput="updatePreview('AM')"></textarea>
+            <button class="tpl-copy-btn" onclick="copyTemplate('AM')">Copy message</button>
+            <div class="tpl-copied" id="tplCopiedAM">✓ Copied to clipboard</div>
+          </div>
+        </div>
+      </div>
+      <div class="result-pm" id="resultPM">
+        <div class="rname-pm" id="rNamePM"></div>
+        <div class="rmeta rmeta-pm" id="rMetaPM"></div>
+        <div class="chips" id="rChipsPM"></div>
+        <div class="teams-section">
+          <div class="teams-title">Send to Teams</div>
+          <div class="tpl-chips" id="tplChipsPM"></div>
+          <div class="tpl-detail-wrap" id="tplDetailPM">
+            <div class="tpl-preview" id="tplPreviewPM"></div>
+            <textarea class="tpl-extra" id="tplExtraPM" rows="2" placeholder="Add details... (optional)" oninput="updatePreview('PM')"></textarea>
+            <button class="tpl-copy-btn" onclick="copyTemplate('PM')">Copy message</button>
+            <div class="tpl-copied" id="tplCopiedPM">✓ Copied to clipboard</div>
+          </div>
+        </div>
+      </div>
       <div class="lfb-warning" id="lfbWarning">
         <strong>⚠️ Flatbed routes — include LFB in your search</strong>
         This store has flatbed routes assigned to a different dispatcher. If you are looking for a flatbed, search using the full route code including <strong>LFB</strong> (e.g. 1926LFB1) to get the correct dispatcher.
@@ -125,6 +182,36 @@ input[type=text]:focus,input[type=password]:focus{outline:none;border-color:var(
           <select id="assignBundle"></select>
           <button class="btn btn-amber" onclick="assignNewStore()">Guardar tienda</button>
         </div>
+      </div>
+    </div>
+  </div>
+  <div class="panel" id="tab-message">
+    <div class="card">
+      <label>Route code o número de tienda</label>
+      <input type="text" id="msgRouteInput" placeholder="ej. 2533BOX01 / 2533" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="clearMsgResult()">
+      <div id="msgDispatcherFound" style="display:none;margin-bottom:12px;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:2px;">Dispatcher</div>
+        <div id="msgDispatcherName" style="font-size:16px;font-weight:700;color:var(--text);"></div>
+        <div id="msgBundleInfo" style="font-size:12px;color:var(--text2);margin-top:2px;"></div>
+      </div>
+      <label>Type of incident</label>
+      <select id="msgType" style="width:100%;padding:11px 12px;font-size:14px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);margin-bottom:8px;">
+        <option value="">Select type...</option>
+        <option value="Skip Stop">Skip Stop</option>
+        <option value="Driver Issue">Driver Issue</option>
+        <option value="Rescue (RS)">Rescue (RS)</option>
+        <option value="Customer Unavailable">Customer Unavailable</option>
+        <option value="Other">Other</option>
+      </select>
+      <label>Message details</label>
+      <textarea id="msgDetails" placeholder="Describe the situation..." style="width:100%;padding:11px 12px;font-size:14px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);margin-bottom:8px;min-height:90px;resize:vertical;font-family:inherit;"></textarea>
+      <button class="btn" id="msgSearchBtn" onclick="generateMessage()">Generate Message</button>
+
+      <div id="msgResult" style="display:none;margin-top:12px;">
+        <div class="section-title">Ready to paste in Teams</div>
+        <div id="msgOutput" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;font-size:13px;color:var(--text);line-height:1.6;white-space:pre-wrap;word-break:break-word;"></div>
+        <button class="btn" style="margin-top:8px;" onclick="copyMessage()">📋 Copy message</button>
+        <div id="copyNotice" style="font-size:12px;color:var(--green);font-weight:600;display:none;text-align:center;margin-top:6px;">✓ Copied to clipboard</div>
       </div>
     </div>
   </div>
@@ -172,7 +259,7 @@ input[type=text]:focus,input[type=password]:focus{outline:none;border-color:var(
 <script>
 
 const STORE_MAP={4:13,8:5,10:13,15:9,18:12,26:13,35:13,46:1,53:1,56:15,57:2,61:13,66:5,69:1,71:1,75:1,92:2,102:10,104:2,107:2,117:2,119:11,126:1,140:13,149:13,152:12,172:12,178:9,199:1,200:1,208:7,235:6,236:6,245:2,246:10,248:11,249:12,250:15,252:13,258:2,278:3,285:13,289:8,305:5,311:10,316:8,317:6,318:10,319:12,321:15,330:1,340:10,342:9,422:3,432:6,462:6,493:6,503:11,521:5,533:4,552:4,581:4,591:6,597:6,614:5,643:6,674:7,688:12,694:3,714:7,721:5,731:6,733:3,753:6,756:3,758:15,759:7,764:6,765:1,773:15,774:8,775:7,777:5,785:15,790:5,791:9,792:7,795:5,805:5,1001:7,1013:13,1019:14,1024:15,1026:7,1030:8,1032:7,1041:8,1042:7,1043:14,1048:8,1050:15,1055:6,1057:6,1067:5,1077:5,1078:5,1080:9,1081:13,1082:13,1083:5,1084:5,1086:14,1087:15,1089:13,1090:7,1096:3,1098:5,1099:10,1105:1,1108:11,1110:1,1114:11,1117:7,1118:9,1121:1,1132:14,1133:9,1137:3,1143:14,1144:9,1146:3,1147:5,1148:15,1150:14,1152:3,1157:7,1158:3,1159:4,1162:9,1167:13,1170:8,1180:5,1184:4,1201:15,1204:7,1207:15,1209:6,1429:8,1501:9,1503:6,1510:9,1514:1,1517:1,1520:4,1534:13,1539:10,1540:15,1541:5,1543:3,1545:14,1547:5,1551:1,1552:14,1553:7,1554:10,1555:15,1556:7,1558:11,1559:5,1561:11,1562:8,1565:5,1573:13,1574:7,1576:7,1588:13,1591:15,1600:11,1607:7,1609:1,1611:5,1613:9,1615:1,1616:13,1623:5,1627:6,1628:6,1630:10,1631:13,1632:11,1633:8,1634:10,1636:3,1638:7,1648:6,1650:6,1661:13,1672:5,1679:2,1680:6,1682:12,1688:2,1690:11,1693:11,1695:4,1700:8,1706:14,1707:7,1708:5,1712:2,1728:7,1730:10,1734:9,1741:11,1742:13,1743:8,1745:5,1746:6,1752:6,1753:15,1754:7,1755:10,1756:14,1761:3,1766:6,1773:1,1775:6,1785:12,1791:7,1795:6,1806:6,1809:6,1812:10,1818:6,1824:11,1826:3,1830:5,1833:6,1850:7,1852:9,1860:1,1871:14,1872:8,1873:9,1874:10,1887:11,1895:14,1896:6,1901:14,1903:10,1904:12,1905:10,1906:12,1926:15,1933:15,1941:9,1955:6,1956:1,1966:6,1971:9,1972:9,1985:8,1987:7,1989:10,2211:14,2215:5,2226:3,2227:14,2230:3,2231:2,2236:3,2268:15,2270:8,2272:7,2273:14,2274:10,2275:9,2277:12,2278:5,2279:14,2293:9,2294:7,2295:7,2296:9,2300:6,2302:6,2303:6,2311:6,2313:6,2314:3,2315:6,2318:1,2330:8,2331:13,2333:6,2334:14,2335:14,2336:11,2340:5,2341:15,2344:12,2346:13,2419:10,2420:13,2421:7,2423:10,2424:5,2432:10,2435:4,2459:5,2465:6,2466:4,2471:6,2473:5,2479:10,2481:13,2491:3,2499:15,2501:3,2502:9,2503:4,2504:5,2508:14,2510:3,2512:8,2518:6,2527:7,2528:7,2532:1,2533:6,2539:3,2547:9,2550:13,2556:3,2557:7,2561:13,2565:5,2568:10,2573:12,2576:3,2578:10,2579:11,2582:7,2583:7,2585:1,2587:12,2588:5,2593:1,2597:12,2598:6,2600:5,2604:14,2605:15,2606:9,2607:10,2608:12,2611:4,2619:11,2626:5,2627:6,2628:6,2647:3,2648:4,2660:5,2661:15,2662:9,2663:7,2683:7,2697:10,2712:5,2714:15,2729:6,2730:5,2733:13,2734:13,2736:6,2738:13,2739:4,2742:10,2746:13,2755:15,2761:6,2767:5,2769:5,2780:10,2781:13,2783:8,2790:14,2792:12,2793:12,2805:14,2806:10,2808:7,2820:7,2833:7,2834:9,2845:9,2849:3,2856:7,2858:9,2865:11,2879:3,2895:11,2928:3,2940:11,2942:1,2943:5,2954:11,2955:8,2956:12,2991:6,3000:7,3034:15,3045:12,3048:3,3057:11,3068:7,3088:5,3095:14,3151:8,3164:14,3170:9,3206:10,3214:13,3240:12,3279:11,3331:6,3345:7,3352:5,3363:8,3379:5,3427:9,3444:10,3566:8,3568:7,3641:6,3877:1,3887:2,3939:1,3956:9,3966:10,3971:11,3974:12,3984:4,3987:3,3989:13,3994:5,3995:6,4509:13,4522:9,4525:14,4530:6,4545:7,4546:8};
-const PM_STORE_MAP={4:9,8:4,10:9,15:9,18:10,26:9,35:9,46:1,53:1,56:6,57:2,61:9,66:4,69:1,71:1,75:1,92:2,102:3,104:2,107:2,117:2,119:10,126:1,140:9,149:9,152:10,172:10,178:9,199:1,200:1,208:5,235:2,236:2,245:2,246:3,248:10,249:10,250:6,252:9,258:2,278:4,285:9,289:9,305:4,311:3,316:6,317:2,318:3,319:10,321:8,330:1,340:3,342:9,422:4,432:2,462:2,493:2,503:10,521:4,533:3,552:3,581:3,591:2,597:2,614:4,643:2,674:5,688:10,694:4,714:5,721:4,731:2,733:4,753:1,756:3,758:6,759:5,764:2,765:1,773:6,774:6,775:5,777:8,785:6,790:8,791:7,792:5,795:8,805:8,1001:5,1013:8,1019:6,1024:8,1026:5,1030:6,1032:5,1041:6,1042:5,1043:6,1048:6,1050:6,1055:2,1057:2,1067:4,1077:4,1078:4,1080:9,1081:9,1082:8,1083:4,1084:4,1086:6,1087:8,1089:9,1090:5,1096:4,1098:4,1099:3,1105:1,1108:10,1110:1,1114:10,1117:5,1118:9,1121:1,1132:6,1133:9,1137:3,1143:6,1144:7,1146:3,1147:4,1148:8,1150:6,1152:3,1157:5,1158:3,1159:3,1162:7,1167:9,1170:6,1180:4,1184:3,1201:8,1204:5,1207:8,1209:2,1429:7,1501:9,1503:2,1510:7,1514:1,1517:1,1520:3,1534:9,1539:3,1540:8,1541:8,1543:3,1545:6,1547:4,1551:1,1552:6,1553:5,1554:3,1555:6,1556:5,1558:10,1559:4,1561:10,1562:6,1565:4,1573:9,1574:5,1576:5,1588:8,1591:6,1600:10,1607:5,1609:1,1611:8,1613:9,1615:1,1616:8,1623:4,1627:2,1628:2,1630:3,1631:9,1632:10,1633:9,1634:3,1636:3,1638:5,1648:2,1650:4,1661:8,1672:8,1679:2,1680:2,1682:10,1688:2,1690:10,1693:10,1695:3,1700:6,1706:6,1707:5,1708:8,1712:2,1728:5,1730:3,1734:7,1741:10,1742:8,1743:6,1745:4,1746:2,1752:2,1753:6,1754:5,1755:3,1756:6,1761:3,1766:2,1773:1,1775:2,1785:10,1791:5,1795:1,1806:2,1809:2,1812:3,1818:2,1824:10,1826:4,1830:4,1833:4,1850:5,1852:7,1860:1,1871:6,1872:6,1873:7,1874:3,1887:10,1895:6,1896:4,1901:6,1903:3,1904:10,1905:3,1906:10,1926:8,1933:8,1941:7,1955:4,1956:1,1966:2,1971:7,1972:7,1985:9,1987:5,1989:3,2211:6,2215:8,2226:4,2227:6,2230:4,2231:2,2236:4,2268:6,2270:6,2272:5,2273:6,2274:3,2275:9,2277:10,2278:8,2279:6,2293:9,2294:5,2295:5,2296:9,2300:2,2302:2,2303:2,2311:2,2313:4,2314:4,2315:4,2318:1,2330:6,2331:8,2333:4,2334:6,2335:6,2336:10,2340:4,2341:8,2344:10,2346:9,2419:3,2420:9,2421:5,2423:3,2424:8,2432:3,2435:3,2459:4,2465:4,2466:3,2471:2,2473:8,2479:3,2481:8,2491:4,2499:8,2501:3,2502:7,2503:3,2504:4,2508:6,2510:3,2512:9,2518:4,2527:5,2528:5,2532:1,2533:4,2539:3,2547:7,2550:8,2556:3,2557:5,2561:9,2565:4,2568:3,2573:10,2576:4,2578:3,2579:10,2582:5,2583:5,2585:1,2587:10,2588:4,2593:1,2597:10,2598:2,2600:4,2604:6,2605:6,2606:9,2607:3,2608:10,2611:3,2619:10,2626:4,2627:4,2628:4,2647:4,2648:3,2660:8,2661:8,2662:9,2663:5,2683:5,2697:3,2712:8,2714:6,2729:2,2730:8,2733:9,2734:9,2736:4,2738:9,2739:3,2742:3,2746:9,2755:8,2761:2,2767:4,2769:4,2780:3,2781:9,2783:6,2790:6,2792:10,2793:10,2805:6,2806:3,2808:5,2820:5,2833:5,2834:9,2845:9,2849:4,2856:5,2858:9,2865:10,2879:3,2895:10,2928:3,2940:10,2942:1,2943:4,2954:10,2955:9,2956:10,2991:1,3000:5,3034:8,3045:10,3048:3,3057:10,3068:5,3088:4,3095:6,3151:6,3164:6,3170:7,3206:3,3214:8,3240:10,3279:10,3331:2,3345:7,3352:8,3363:7,3379:4,3427:9,3444:3,3566:6,3568:5,3641:1,3877:1,3887:2,3939:1,3956:7,3966:10,3971:11,3974:8,3984:1,3987:5,3989:13,3994:5,3995:6,4509:9,4522:9,4525:7,4530:4,4545:5,4546:6};
+const PM_STORE_MAP={4:9,8:4,10:9,15:9,18:10,26:9,35:9,46:1,53:1,56:6,57:2,61:9,66:4,69:1,71:1,75:1,92:2,102:3,104:2,107:2,117:2,119:10,126:1,140:9,149:9,152:10,172:10,178:9,199:1,200:1,208:5,235:2,236:2,245:2,246:3,248:10,249:10,250:6,252:9,258:2,278:4,285:9,289:9,305:4,311:3,316:6,317:2,318:3,319:10,321:8,330:1,340:3,342:9,422:4,432:2,462:2,493:2,503:10,521:4,533:3,552:3,581:3,591:2,597:2,614:4,643:2,674:5,688:10,694:4,714:5,721:4,731:2,733:4,753:1,756:3,758:6,759:5,764:2,765:1,773:6,774:6,775:5,777:8,785:6,790:8,791:7,792:5,795:8,805:8,1001:5,1013:8,1019:6,1024:8,1026:5,1030:6,1032:5,1041:6,1042:5,1043:6,1048:6,1050:6,1055:2,1057:2,1067:4,1077:4,1078:4,1080:9,1081:9,1082:8,1083:4,1084:4,1086:6,1087:8,1089:9,1090:5,1096:4,1098:4,1099:3,1105:1,1108:10,1110:1,1114:10,1117:5,1118:9,1121:1,1132:6,1133:9,1137:3,1143:6,1144:7,1146:3,1147:4,1148:8,1150:6,1152:3,1157:5,1158:3,1159:3,1162:7,1167:9,1170:6,1180:4,1184:3,1201:8,1204:5,1207:8,1209:2,1429:7,1501:9,1503:2,1510:7,1514:1,1517:1,1520:3,1534:9,1539:3,1540:8,1541:8,1543:3,1545:6,1547:4,1551:1,1552:6,1553:5,1554:3,1555:6,1556:5,1558:10,1559:4,1561:10,1562:6,1565:4,1573:9,1574:5,1576:5,1588:8,1591:6,1600:10,1607:5,1609:1,1611:8,1613:9,1615:1,1616:8,1623:4,1627:2,1628:2,1630:3,1631:9,1632:10,1633:9,1634:3,1636:3,1638:5,1648:2,1650:4,1661:8,1672:8,1679:2,1680:2,1682:10,1688:2,1690:10,1693:10,1695:3,1700:6,1706:7,1707:5,1708:8,1712:2,1728:5,1730:3,1734:7,1741:10,1742:8,1743:6,1745:4,1746:2,1752:2,1753:6,1754:5,1755:3,1756:6,1761:3,1766:2,1773:1,1775:2,1785:10,1791:5,1795:1,1806:2,1809:2,1812:3,1818:2,1824:10,1826:4,1830:4,1833:4,1850:5,1852:7,1860:1,1871:6,1872:6,1873:7,1874:3,1887:10,1895:6,1896:4,1901:6,1903:3,1904:10,1905:3,1906:10,1926:8,1933:8,1941:7,1955:4,1956:1,1966:2,1971:7,1972:7,1985:9,1987:5,1989:3,2211:6,2215:8,2226:4,2227:6,2230:4,2231:2,2236:4,2268:6,2270:6,2272:5,2273:6,2274:3,2275:9,2277:10,2278:8,2279:6,2293:9,2294:5,2295:5,2296:9,2300:2,2302:2,2303:2,2311:2,2313:4,2314:4,2315:4,2318:1,2330:6,2331:8,2333:4,2334:6,2335:6,2336:10,2340:4,2341:8,2344:10,2346:9,2419:3,2420:9,2421:5,2423:3,2424:8,2432:3,2435:3,2459:4,2465:4,2466:3,2471:2,2473:8,2479:3,2481:8,2491:4,2499:8,2501:3,2502:7,2503:3,2504:4,2508:6,2510:3,2512:9,2518:4,2527:5,2528:5,2532:1,2533:4,2539:3,2547:7,2550:8,2556:3,2557:5,2561:9,2565:4,2568:3,2573:10,2576:4,2578:3,2579:10,2582:5,2583:5,2585:1,2587:10,2588:4,2593:1,2597:10,2598:2,2600:4,2604:6,2605:6,2606:9,2607:3,2608:10,2611:3,2619:10,2626:4,2627:4,2628:4,2647:4,2648:3,2660:8,2661:8,2662:9,2663:5,2683:5,2697:3,2712:8,2714:6,2729:2,2730:8,2733:9,2734:9,2736:4,2738:9,2739:3,2742:3,2746:9,2755:8,2761:2,2767:4,2769:4,2780:3,2781:9,2783:6,2790:6,2792:10,2793:10,2805:6,2806:3,2808:5,2820:5,2833:5,2834:9,2845:9,2849:4,2856:5,2858:9,2865:10,2879:3,2895:10,2928:3,2940:10,2942:1,2943:4,2954:10,2955:9,2956:10,2991:1,3000:5,3034:8,3045:10,3048:3,3057:10,3068:5,3088:4,3095:6,3151:6,3164:6,3170:7,3206:3,3214:8,3240:10,3279:10,3331:2,3345:7,3352:8,3363:7,3379:4,3427:9,3444:3,3566:6,3568:5,3641:1,3877:1,3887:2,3939:1,3956:7,3966:10,3971:11,3974:8,3984:1,3987:5,3989:13,3994:5,3995:6,4509:9,4522:9,4525:7,4530:4,4545:5,4546:6};
 
 const NFB_STORES=new Set([321, 790, 795, 1019, 1086, 1087, 1143, 1148, 1150, 1201, 1207, 1540, 1541, 1545, 1611, 1672, 1706, 1756, 1895, 1901, 1926, 2211, 2215, 2227, 2279, 2334, 2335, 2424, 2473, 2499, 2508, 2712, 2730, 2755, 2790, 2805, 3034, 3095, 3352]);
 const SFB_STORES=new Set([56, 208, 250, 758, 759, 773, 775, 785, 791, 1001, 1013, 1026, 1030, 1041, 1048, 1050, 1082, 1144, 1162, 1429, 1510, 1555, 1556, 1562, 1574, 1576, 1588, 1591, 1661, 1734, 1742, 1743, 1852, 1872, 1873, 1941, 1971, 2268, 2330, 2331, 2481, 2502, 2528, 2547, 2550, 2583, 2605, 2714, 2783, 2856, 3151, 3170, 3214]);
@@ -270,13 +357,14 @@ function setShift(s){
 }
 function switchTab(name){
   const am=shift==='AM';const cls=am?'active-am':'active-pm';
-  ['search','handoff','update'].forEach(t=>{
+  ['search','message','handoff','update'].forEach(t=>{
     const el=document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1));
     if(el)el.className='tab'+(name===t?' '+cls:'');
   });
-  document.getElementById('tab-search').classList.toggle('active',name==='search');
-  document.getElementById('tab-handoff').classList.toggle('active',name==='handoff');
-  document.getElementById('tab-update').classList.toggle('active',name==='update');
+  ['search','message','handoff','update'].forEach(t=>{
+    const el=document.getElementById('tab-'+t);
+    if(el)el.classList.toggle('active',name===t);
+  });
   if(name==='update'&&unlocked)renderForm();
   if(name==='handoff')renderHandoff();
 }
@@ -335,6 +423,16 @@ function lookup(){
     }
     chips.innerHTML=chipsHtml;
     document.getElementById(am?'resultAM':'resultPM').style.display='block';
+    // Setup templates
+    const s=am?'AM':'PM';
+    const rawMn2=raw.match(/(\d{3,4})/);
+    tplState[s].store=rawMn2?rawMn2[1]:raw;
+    tplState[s].dispatcher=info?info.dispatcher:'—';
+    tplState[s].type='';
+    tplState[s].extra='';
+    document.getElementById('tplDetail'+s).classList.remove('show');
+    document.querySelectorAll('#tplChips'+s+' .tpl-chip').forEach(c=>c.classList.remove('active-tpl'));
+    buildTemplateChips(s);
     // Show LFB warning if store has flatbed routes but LFB not in search
     const rawUpper=raw.toUpperCase();
     const rawMn=raw.match(/(\d{3,4})/);
@@ -372,6 +470,10 @@ function assignNewStore(){
 }
 function clearResult(){
   ['resultAM','resultPM','resultUnknown','lfbWarning'].forEach(id=>document.getElementById(id).style.display='none');
+  ['AM','PM'].forEach(s=>{
+    const d=document.getElementById('tplDetail'+s);
+    if(d)d.classList.remove('show');
+  });
   document.getElementById('assignBox').style.display='none';
 }
 function saveToken(val){
@@ -471,6 +573,68 @@ function getPMInfoForBundle(amBundle){
   return pmB?pmList.find(x=>x.b===pmB)||null:null;
 }
 
+function clearMsgResult(){
+  document.getElementById('msgResult').style.display='none';
+  document.getElementById('msgDispatcherFound').style.display='none';
+}
+
+function generateMessage(){
+  const raw=document.getElementById('msgRouteInput').value.trim();
+  const type=document.getElementById('msgType').value;
+  const details=document.getElementById('msgDetails').value.trim();
+  if(!raw){alert('Please enter a store number or route code.');return;}
+
+  const b=findBundle(raw);
+  if(!b){
+    document.getElementById('msgDispatcherFound').style.display='none';
+    alert('Store not found. Please check the route code.');
+    return;
+  }
+  const info=getInfo(b);
+  const name=info?info.dispatcher:'—';
+  const area=info?info.area:'';
+
+  // Show dispatcher found
+  document.getElementById('msgDispatcherName').textContent=name;
+  document.getElementById('msgBundleInfo').textContent='Bundle '+b+' — '+area;
+  document.getElementById('msgDispatcherFound').style.display='block';
+
+  // Extract store number
+  const mn=raw.match(/(\d{3,4})/);
+  const storeNum=mn?mn[1]:raw;
+
+  // Build message
+  const typeStr=type?` | ${type}`:'';
+  let msg=`@${name} — Store ${storeNum}${typeStr}
+`;
+  if(details) msg+=`${details}`;
+  msg=msg.trim();
+
+  document.getElementById('msgOutput').textContent=msg;
+  document.getElementById('msgResult').style.display='block';
+}
+
+function copyMessage(){
+  const text=document.getElementById('msgOutput').textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    const n=document.getElementById('copyNotice');
+    n.style.display='block';
+    clearTimeout(n._t);n._t=setTimeout(()=>n.style.display='none',2000);
+  }).catch(()=>{
+    // Fallback
+    const el=document.getElementById('msgOutput');
+    const range=document.createRange();
+    range.selectNode(el);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    document.execCommand('copy');
+    window.getSelection().removeAllRanges();
+    const n=document.getElementById('copyNotice');
+    n.style.display='block';
+    clearTimeout(n._t);n._t=setTimeout(()=>n.style.display='none',2000);
+  });
+}
+
 function renderHandoff(){
   const list=amList;
   const container=document.getElementById('handoffList');
@@ -488,6 +652,64 @@ function renderHandoff(){
       (pmInfo?'<span class="pm-takes">→ '+pmInfo.dispatcher+'</span>':'')+
     '</div>';
   }).join('');
+}
+
+
+const TEMPLATES = [
+  {label:'Skip Stop', text:'Customer requested to skip this stop.'},
+  {label:'Reschedule (RS)', text:'Customer requested to reschedule delivery.'},
+  {label:'Driver Issue', text:'Driver reported an issue at this stop.'},
+  {label:'Customer Unavailable', text:'Customer is unavailable to receive delivery.'},
+  {label:'Other', text:''},
+];
+
+let tplState = {AM:{type:'',store:'',dispatcher:'',extra:''},PM:{type:'',store:'',dispatcher:'',extra:''}};
+
+function buildTemplateChips(shift){
+  const id = 'tplChips'+shift;
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.innerHTML = TEMPLATES.map(t =>
+    `<button class="tpl-chip" onclick="selectTemplate('${shift}','${t.label}')">${t.label}</button>`
+  ).join('');
+}
+
+function selectTemplate(s, type){
+  tplState[s].type = type;
+  // Update chip active state
+  document.querySelectorAll('#tplChips'+s+' .tpl-chip').forEach(c=>{
+    c.classList.toggle('active-tpl', c.textContent===type);
+  });
+  // Reset extra
+  document.getElementById('tplExtra'+s).value = '';
+  tplState[s].extra = '';
+  // Show detail
+  document.getElementById('tplDetail'+s).classList.add('show');
+  updatePreview(s);
+}
+
+function updatePreview(s){
+  const st = tplState[s];
+  const extra = document.getElementById('tplExtra'+s).value.trim();
+  tplState[s].extra = extra;
+  const tpl = TEMPLATES.find(t=>t.label===st.type);
+  const defaultText = tpl ? tpl.text : '';
+  const detail = extra || defaultText;
+  let msg = `@${st.dispatcher} — Store ${st.store} | ${st.type}`;
+  if(detail) msg += `\n${detail}`;
+  document.getElementById('tplPreview'+s).textContent = msg;
+}
+
+function copyTemplate(s){
+  const text = document.getElementById('tplPreview'+s).textContent;
+  navigator.clipboard.writeText(text).catch(()=>{
+    const el=document.getElementById('tplPreview'+s);
+    const r=document.createRange();r.selectNode(el);
+    window.getSelection().removeAllRanges();window.getSelection().addRange(r);
+    document.execCommand('copy');window.getSelection().removeAllRanges();
+  });
+  const n=document.getElementById('tplCopied'+s);
+  n.style.display='block';clearTimeout(n._t);n._t=setTimeout(()=>n.style.display='none',2000);
 }
 
 document.getElementById('routeInput').addEventListener('keydown',e=>{if(e.key==='Enter')lookup();});
