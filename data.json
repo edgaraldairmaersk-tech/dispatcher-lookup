@@ -10,8 +10,8 @@
     {
       "b": 2,
       "area": "XDTHZL 3887 | 847 | 1286",
-      "dispatcher": "Mario Pacheco",
-      "sts": false,
+      "dispatcher": "Pablo Sosa",
+      "sts": true,
       "handoff": "11:30 AM"
     },
     {
@@ -31,36 +31,36 @@
     {
       "b": 5,
       "area": "XDTKC 3994 | 888/1254 | 1357",
-      "dispatcher": "Carlos Colin",
+      "dispatcher": "Carlo Tolentino",
       "sts": true,
       "handoff": "12:00 PM"
     },
     {
       "b": 6,
       "area": "XDTJMO 3995 | 863 | 886 | 1244",
-      "dispatcher": "Carlo Tolentino",
+      "dispatcher": "David Vega",
       "sts": true,
       "handoff": "12:00 PM"
     },
     {
       "b": 7,
       "area": "XDTPHX 3345 | PHX 883/1101 | 1262",
-      "dispatcher": "Carlo Morales",
-      "sts": false,
+      "dispatcher": "Estefany Garcia",
+      "sts": true,
       "handoff": "1:00 PM"
     },
     {
       "b": 8,
       "area": "XDTMV 3363 | 1236 | AK",
-      "dispatcher": "Adriana Bernal",
-      "sts": true,
+      "dispatcher": "Rogelio Morales",
+      "sts": false,
       "handoff": "1:00 PM"
     },
     {
       "b": 9,
       "area": "XDTLA 3956 | UT-897",
-      "dispatcher": "Mario Garcia",
-      "sts": true,
+      "dispatcher": "Adriana Bernal",
+      "sts": false,
       "handoff": "1:00 PM"
     },
     {
@@ -73,28 +73,28 @@
     {
       "b": 11,
       "area": "XDTORG 3971 | 1100 | HI",
-      "dispatcher": "Jaylin Perez",
-      "sts": true,
+      "dispatcher": "Rogelio Morales",
+      "sts": false,
       "handoff": "1:00 PM"
     },
     {
       "b": 12,
       "area": "XDTOAK 3974 | 895/1239",
       "dispatcher": "Julio Guardado",
-      "sts": true,
+      "sts": false,
       "handoff": "1:00 PM"
     },
     {
       "b": 13,
       "area": "XDTWA 3989 | WA 893/894 | 1253",
-      "dispatcher": "Gustavo Pilloni",
+      "dispatcher": "Roberto Uriostegui",
       "sts": true,
       "handoff": "1:00 PM"
     },
     {
       "b": 14,
       "area": "NFB | 1104/1267 | 880",
-      "dispatcher": "Estefany Garcia",
+      "dispatcher": "Carlo Morales",
       "sts": false,
       "handoff": ""
     },
@@ -168,5 +168,5 @@
       "sts": true
     }
   ],
-  "updatedAt": "2026-03-20T20:41:01.574Z"
+  "updatedAt": "2026-03-21T18:46:54.931Z"
 }
