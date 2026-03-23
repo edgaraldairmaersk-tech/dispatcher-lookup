@@ -3,35 +3,35 @@
     {
       "b": 1,
       "area": "XDTGRD 3939 | 844/846/1312",
-      "dispatcher": "Nick Tavera",
+      "dispatcher": "Rogelio Morales",
       "sts": true,
       "handoff": "10:30 AM"
     },
     {
       "b": 2,
       "area": "XDTHZL 3887 | 847 | 1286",
-      "dispatcher": "Pablo Sosa",
+      "dispatcher": "Mario Pacheco",
       "sts": true,
       "handoff": "11:30 AM"
     },
     {
       "b": 3,
       "area": "XDTDEN 3987 | 1218 | 1223",
-      "dispatcher": "Maria Gordillo",
-      "sts": true,
+      "dispatcher": "America Moreno",
+      "sts": false,
       "handoff": "11:45 AM"
     },
     {
       "b": 4,
       "area": "XDTCDR 3984 | 1232 | 1295",
-      "dispatcher": "Ivan Duran",
-      "sts": false,
+      "dispatcher": "Gustavo Pilloni",
+      "sts": true,
       "handoff": "12:00 PM"
     },
     {
       "b": 5,
       "area": "XDTKC 3994 | 888/1254 | 1357",
-      "dispatcher": "Carlo Tolentino",
+      "dispatcher": "Carlos Colin",
       "sts": true,
       "handoff": "12:00 PM"
     },
@@ -45,43 +45,43 @@
     {
       "b": 7,
       "area": "XDTPHX 3345 | PHX 883/1101 | 1262",
-      "dispatcher": "Estefany Garcia",
-      "sts": true,
+      "dispatcher": "Julio Guardado",
+      "sts": false,
       "handoff": "1:00 PM"
     },
     {
       "b": 8,
       "area": "XDTMV 3363 | 1236 | AK",
-      "dispatcher": "Rogelio Morales",
-      "sts": false,
+      "dispatcher": "Carlo Tolentino",
+      "sts": true,
       "handoff": "1:00 PM"
     },
     {
       "b": 9,
       "area": "XDTLA 3956 | UT-897",
-      "dispatcher": "Adriana Bernal",
-      "sts": false,
+      "dispatcher": "Mario Garcia",
+      "sts": true,
       "handoff": "1:00 PM"
     },
     {
       "b": 10,
       "area": "XDTTRY 3966 | CO 1238/1284",
-      "dispatcher": "Bryan Martinez",
+      "dispatcher": "Angelica Amador",
       "sts": true,
       "handoff": "1:00 PM"
     },
     {
       "b": 11,
       "area": "XDTORG 3971 | 1100 | HI",
-      "dispatcher": "Rogelio Morales",
-      "sts": false,
+      "dispatcher": "Jaylin Perez",
+      "sts": true,
       "handoff": "1:00 PM"
     },
     {
       "b": 12,
       "area": "XDTOAK 3974 | 895/1239",
-      "dispatcher": "Julio Guardado",
-      "sts": false,
+      "dispatcher": "Pablo Sosa",
+      "sts": true,
       "handoff": "1:00 PM"
     },
     {
@@ -101,7 +101,7 @@
     {
       "b": 15,
       "area": "SFB | 882 | 884",
-      "dispatcher": "Luis Hernandez",
+      "dispatcher": "Gabriela Cordova",
       "sts": false,
       "handoff": ""
     }
@@ -168,5 +168,5 @@
       "sts": true
     }
   ],
-  "updatedAt": "2026-03-21T21:07:21.281Z"
+  "updatedAt": "2026-03-23T19:10:12.388Z"
 }
