@@ -110,63 +110,63 @@
     {
       "b": 1,
       "area": "XDTCDR 3984 + XDTGRD 3939 | 886 | 844/846/1312",
-      "dispatcher": "Erik Barcenas",
-      "sts": true
-    },
-    {
-      "b": 2,
-      "area": "XDTHZL 3887 | 847 | 1286 | 863 | 1244",
       "dispatcher": "Luis Arreguin",
       "sts": false
     },
     {
+      "b": 2,
+      "area": "XDTHZL 3887 | 847 | 1286 | 863 | 1244",
+      "dispatcher": "Humberto Cardenas",
+      "sts": true
+    },
+    {
       "b": 3,
       "area": "XDTKC 3994 | CO 1238/1284 | 1223 | 1232",
-      "dispatcher": "Hector Castillo",
+      "dispatcher": "Dulce Gonzales",
       "sts": true
     },
     {
       "b": 4,
       "area": "XDTJMO 3995 | 888/1254 | 1295 | 1218 | UT-897",
-      "dispatcher": "Sebastian Samano",
-      "sts": false
+      "dispatcher": "Mauricio Gonzales",
+      "sts": true
     },
     {
       "b": 5,
       "area": "XDTDEN 3987 | XDT 3345 | PHX 883/1101 | 1262",
-      "dispatcher": "Alexis Coello",
+      "dispatcher": "Hector Castillo",
       "sts": true
     },
     {
       "b": 6,
       "area": "SFB | NFB | 1236",
-      "dispatcher": "Hersair Mora",
+      "dispatcher": "Osvaldo Salas",
       "sts": false
     },
     {
       "b": 7,
       "area": "XDTMV 3363 | XDTLA 3956 | 882 | 1104/1267",
       "dispatcher": "Alan Becerra",
-      "sts": true
+      "sts": false
     },
     {
       "b": 8,
       "area": "XDTTRY 3966 | XDTOAK 3974 | 1253 | 1357 | 884",
-      "dispatcher": "Dara Gomez",
-      "sts": false
+      "dispatcher": "Aimee Hernandez",
+      "sts": true
     },
     {
       "b": 9,
       "area": "XDTWA 3989 | WA 893/894 | 880 | AK",
       "dispatcher": "Christian Petatan",
-      "sts": false
+      "sts": true
     },
     {
       "b": 10,
       "area": "XDTORG 3971 | OR 1100 | 895/1239 | HI",
-      "dispatcher": "Aime Hernandez",
-      "sts": true
+      "dispatcher": "Dara Gomez Tovar",
+      "sts": false
     }
   ],
-  "updatedAt": "2026-03-24T18:19:09.620Z"
+  "updatedAt": "2026-03-24T20:53:23.733Z"
 }
