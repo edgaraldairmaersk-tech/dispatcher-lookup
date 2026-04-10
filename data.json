@@ -117,7 +117,7 @@
       "b": 2,
       "area": "XDTHZL 3887 | 847 | 1286 | 863 | 1244",
       "dispatcher": "Hector Castillo",
-      "sts": false
+      "sts": true
     },
     {
       "b": 3,
@@ -134,20 +134,20 @@
     {
       "b": 5,
       "area": "XDTDEN 3987 | XDT 3345 | PHX 883/1101 | 1262",
-      "dispatcher": "Alexis Coello",
-      "sts": true
+      "dispatcher": "Edgar Rocha",
+      "sts": false
     },
     {
       "b": 6,
       "area": "SFB | NFB | 1236",
-      "dispatcher": "Sebastian Saamano",
+      "dispatcher": "Hersair Mora",
       "sts": false
     },
     {
       "b": 7,
       "area": "XDTMV 3363 | XDTLA 3956 | 882 | 1104/1267",
-      "dispatcher": "Hersair Mora",
-      "sts": true
+      "dispatcher": "Sebastian Samano",
+      "sts": false
     },
     {
       "b": 8,
@@ -168,5 +168,5 @@
       "sts": true
     }
   ],
-  "updatedAt": "2026-03-28T00:48:28.120Z"
+  "updatedAt": "2026-04-10T23:02:26.099Z"
 }
