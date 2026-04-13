@@ -11,7 +11,7 @@
       "b": 2,
       "area": "XDTHZL 3887 | 847 | 1286",
       "dispatcher": "Moises Estrada",
-      "sts": true,
+      "sts": false,
       "handoff": "11:30 AM"
     },
     {
@@ -116,26 +116,26 @@
     {
       "b": 2,
       "area": "XDTHZL 3887 | 847 | 1286 | 863 | 1244",
-      "dispatcher": "Hector Castillo",
-      "sts": true
+      "dispatcher": "Luis Arreguin",
+      "sts": false
     },
     {
       "b": 3,
       "area": "XDTKC 3994 | CO 1238/1284 | 1223 | 1232",
-      "dispatcher": "Dulce Gonzales",
+      "dispatcher": "Hector Castillo",
       "sts": true
     },
     {
       "b": 4,
       "area": "XDTJMO 3995 | 888/1254 | 1295 | 1218 | UT-897",
-      "dispatcher": "Humberto Cardenas",
-      "sts": true
+      "dispatcher": "Sebastian Samano",
+      "sts": false
     },
     {
       "b": 5,
       "area": "XDTDEN 3987 | XDT 3345 | PHX 883/1101 | 1262",
-      "dispatcher": "Edgar Rocha",
-      "sts": false
+      "dispatcher": "Jair Lopez",
+      "sts": true
     },
     {
       "b": 6,
@@ -146,20 +146,20 @@
     {
       "b": 7,
       "area": "XDTMV 3363 | XDTLA 3956 | 882 | 1104/1267",
-      "dispatcher": "Sebastian Samano",
-      "sts": false
+      "dispatcher": "Alan Becerra",
+      "sts": true
     },
     {
       "b": 8,
       "area": "XDTTRY 3966 | XDTOAK 3974 | 1253 | 1357 | 884",
-      "dispatcher": "Mauricio Gonzales",
-      "sts": true
+      "dispatcher": "Dara Gomez",
+      "sts": false
     },
     {
       "b": 9,
       "area": "XDTWA 3989 | WA 893/894 | 880 | AK",
-      "dispatcher": "Irving Lira",
-      "sts": true
+      "dispatcher": "Christian Petatan",
+      "sts": false
     },
     {
       "b": 10,
@@ -168,5 +168,5 @@
       "sts": true
     }
   ],
-  "updatedAt": "2026-04-10T23:02:26.099Z"
+  "updatedAt": "2026-04-13T23:04:03.886Z"
 }
